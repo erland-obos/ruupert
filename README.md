@@ -74,14 +74,14 @@ Follow CLAUDE.md unless conflicts arise, then ask for clarification.
 ```
 .
 └── .agents/
-    ├── typescript-node/
-    │   ├── CLAUDE.md                       # Primary agent control file
+    ├── typescript-node/      # TypeScript/Node.js best practices
+    │   ├── CLAUDE.md         # Primary agent control file for TypeScript/Node.js
     │   └── instructions/
-    │       ├── coding.md                   # TypeScript/Node.js best practices
-    │       ├── testing.md                  # TDD and testing guidelines
-    │       └── docker.md                   # Container setup guide
+    │       ├── coding.md     
+    │       ├── testing.md    # TDD and testing guidelines for TypeScript/Node.js
+    │       └── docker.md     # Container setup guide
     └── common/instructions/
-        └── research.md                     # Research methodology
+        └── research.md       # Research methodology
 ```
 
 ## Key Principles
