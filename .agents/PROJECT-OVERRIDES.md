@@ -1,4 +1,4 @@
-# PROJECT.md
+# PROJECT-OVERRIDES.md
 
 This document defines how this project may adapt, extend, or override the general AI agent instructions provided in the
 `.agents` directory. It is intentionally minimal and assumes a senior audience.
@@ -96,20 +96,20 @@ Do not create global project rules early. Add them only after patterns emerge th
 
 ## How AI Agents Must Read and Apply This File
 
-AI agents must treat `PROJECT.md` as an execution-time modifier of the `.agents` instruction set. The following rules
+AI agents must treat `.agents/PROJECT-OVERRIDES.md` as an execution-time modifier of the `.agents` instruction set. The following rules
 apply:
 
 ### 1. Load Order
 
 1. Load the relevant `.agents` files as the primary instruction set.
-2. After loading `.agents`, load `PROJECT.md`.
+2. After loading `.agents`, load `.agents/PROJECT-OVERRIDES.md`.
 3. Apply the rules in this file as explicit, higher-priority overrides.
 
-If a conflict is detected between `.agents` and `PROJECT.md`, this file takes precedence.
+If a conflict is detected between `.agents` and `.agents/PROJECT-OVERRIDES.md`, this file takes precedence.
 
 ### 2. Interpretation Rules
 
-- Treat every section of `PROJECT.md` as normative unless explicitly marked as an example.
+- Treat every section of `.agents/PROJECT-OVERRIDES.md` as normative unless explicitly marked as an example.
 - Do not infer additional rules beyond what is written.
 - Do not generalize patterns from overrides; apply them only to the described scope.
 
