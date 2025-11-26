@@ -568,7 +568,7 @@ export const env = envSchema.parse(process.env);
 
 ## Summary
 
-When generating code, always:
+When Claude Code generates code, always:
 
 - ✅ Write tests first (see [testing.md](testing.md) for TDD workflow)
 - ✅ Use strict TypeScript with explicit types
