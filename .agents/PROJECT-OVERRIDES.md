@@ -1,12 +1,13 @@
 # PROJECT-OVERRIDES.md
 
-This document defines how this project may adapt, extend, or override the general AI agent instructions provided in the
+This document defines how this project may adapt, extend, or override the general Claude Code instructions provided in the
 `.agents` directory. It is intentionally minimal and assumes a senior audience.
+
+> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should behave when assisting with this project. They are not designed or supported for use with other AI agents or models.
 
 ## Purpose
 
-The `.agents` directory provides the authoritative instruction set for AI-assisted development. This file describes when
-and how project-specific rules may supplement or override those instructions.
+The `.agents` directory provides the authoritative instruction set for Claude Code when assisting with development. This file describes when and how project-specific rules may supplement or override those instructions.
 
 ## Guiding Principles
 
@@ -94,9 +95,9 @@ Do not create global project rules early. Add them only after patterns emerge th
 
 ---
 
-## How AI Agents Must Read and Apply This File
+## How Claude Code Must Read and Apply This File
 
-AI agents must treat `.agents/PROJECT-OVERRIDES.md` as an execution-time modifier of the `.agents` instruction set. The
+Claude Code must treat `.agents/PROJECT-OVERRIDES.md` as an execution-time modifier of the `.agents` instruction set. The
 following rules
 apply:
 
@@ -125,7 +126,7 @@ When performing any operation (analysis, refactor, code generation, documentatio
 
 ### 4. Safety and Boundaries
 
-Agents must:
+Claude Code must:
 
 - Avoid reasoning outside the explicit content of this file and `.agents`.
 - Request clarification from the user if a task requires a new override or if the existing overrides do not
@@ -142,10 +143,10 @@ If the project evolves and new folders, tools, or conventions appear:
 
 ### 6. Enforcement
 
-This file constrains both autonomous and user-directed agent behavior. When a user requests an operation that conflicts
+This file constrains both autonomous and user-directed Claude Code behavior. When a user requests an operation that conflicts
 with an existing override:
 
-- The agent must highlight the conflict.
-- The agent must request confirmation before deviating from the documented rules.
+- Claude Code must highlight the conflict.
+- Claude Code must request confirmation before deviating from the documented rules.
 
-This ensures deterministic, auditable behavior and stable collaboration between developers and AI agents.
+This ensures deterministic, auditable behavior and stable collaboration between developers and Claude Code.

@@ -5,8 +5,10 @@ Instruction file for Claude Code
 ## Purpose
 
 Provide a stable, project-scoped control file that Claude Code can load and apply as its operating instructions.
-This file defines how the agent should behave when reading the project, modifying code, generating files, performing
+This file defines how Claude Code should behave when reading the project, modifying code, generating files, performing
 refactors, and interacting with the repository.
+
+> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should behave when assisting with this project. They are not designed or supported for use with other AI agents or models.
 
 ---
 
@@ -256,7 +258,7 @@ The following category-specific instruction files are available in `.agents/`:
     - Contains Dockerfile templates, Docker Compose configurations
     - Defines development vs production patterns, networking, and troubleshooting
 
-All instruction files are project-agnostic and provide general best practices applicable to any new project.
+All instruction files are intended for Claude Code only and provide general best practices applicable to any new project when Claude Code is used as the assistant.
 
 ## 10.2 How the Assistant Should Handle Multiple Instruction Layers
 

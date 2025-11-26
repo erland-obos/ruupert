@@ -1,5 +1,7 @@
 # Docker Setup Guidelines
 
+> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should set up Docker environments when assisting with any project. They are not designed or supported for use with other AI agents or models.
+
 ## Overview
 
 This guide defines how to containerize applications, supporting both **fast local development** with hot-reload and *
@@ -1267,7 +1269,7 @@ Use this checklist when setting up Docker:
 - [Docker Multi-Stage Builds](https://docs.docker.com/build/building/multi-stage/)
 - [Node.js Docker Best Practices](https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md)
 
-## Notes for AI Assistants
+## Notes for Claude Code
 
 When dockerizing an application:
 

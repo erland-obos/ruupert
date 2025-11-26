@@ -1,7 +1,6 @@
 # Coding Instructions for TypeScript Node.js Applications
 
-> General best practices for TypeScript Node.js development. These instructions are project-agnostic and apply to any
-> new application or service.
+> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should write and review TypeScript Node.js code when assisting with any project. They are not designed or supported for use with other AI agents or models.
 
 ## Core Principles
 

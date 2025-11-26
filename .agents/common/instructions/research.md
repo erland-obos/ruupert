@@ -4,7 +4,7 @@ This document defines general best practices and workflows for conducting resear
 of software development projects. It covers how to gather information, evaluate technologies, investigate APIs, validate
 findings, document results, and communicate with stakeholders.
 
-> These instructions are intentionally project-agnostic and apply to any new system, architecture, or application.
+> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should conduct research when assisting with any project. They are not designed or supported for use with other AI agents or models.
 
 ---
 
@@ -468,7 +468,7 @@ Before completing a research task:
 
 ## Summary
 
-These general research instructions provide a standardised process for:
+These general research instructions provide a standardised process for Claude Code when:
 
 - deciding what to research
 - conducting research thoroughly
@@ -477,5 +477,5 @@ These general research instructions provide a standardised process for:
 - communicating effectively
 - avoiding assumptions and inaccuracies
 
-Use this file as one of the core instruction documents for new projects, referenced from AGENT.md alongside
+This file serves as one of the core instruction documents for Claude Code on any project, referenced from CLAUDE.md alongside
 architecture, coding, testing, and configuration guidelines.
