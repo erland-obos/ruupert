@@ -9,6 +9,8 @@ This document defines how this project may adapt, extend, or override the genera
 
 The `.agents` directory provides the authoritative instruction set for Claude Code when assisting with development. This file describes when and how project-specific rules may supplement or override those instructions.
 
+**Note:** In this project, all `.agents` instructions and the overrides defined here are used exclusively to configure and control Claude Code's behavior. Other AI agents or models are not supported by this instruction set.
+
 ## Guiding Principles
 
 1. The `.agents` instructions are the default authority and must be followed unless this file explicitly states
