@@ -1,10 +1,12 @@
 # Coding Instructions for TypeScript Node.js Applications
 
-> General best practices for TypeScript Node.js development. These instructions are project-agnostic and apply to any new application or service.
+> General best practices for TypeScript Node.js development. These instructions are project-agnostic and apply to any
+> new application or service.
 
 ## Core Principles
 
 ### 1. Type Safety First
+
 - **Always enable strict mode** in `tsconfig.json`:
   ```json
   {
@@ -26,18 +28,22 @@
 ### 2. Modern TypeScript Patterns
 
 #### Type Inference
+
 - Let TypeScript infer types when obvious, but be explicit for public APIs
 - Use type inference for variable declarations: `const user = getUser()` instead of `const user: User = getUser()`
 
 #### Generics
+
 - Use generics for reusable, type-safe functions and classes
 - Constrain generics with `extends` when needed: `<T extends BaseType>`
 
 #### Utility Types
+
 - Leverage built-in utility types: `Partial<T>`, `Pick<T, K>`, `Omit<T, K>`, `Record<K, V>`
 - Create custom utility types for domain-specific transformations
 
 #### Type Guards
+
 - Implement custom type guards using `is` keyword:
   ```typescript
   function isError(value: unknown): value is Error {
@@ -48,11 +54,13 @@
 ### 3. Asynchronous Patterns
 
 #### Async/Await
+
 - **Prefer async/await** over raw promises for better readability
 - **Always handle errors** with try/catch blocks
 - **Never ignore promise rejections** - handle or propagate errors
 
 #### Error Handling
+
 ```typescript
 async function fetchData(): Promise<Data> {
   try {
@@ -60,8 +68,8 @@ async function fetchData(): Promise<Data> {
     return response;
   } catch (error) {
     if (error instanceof ApiError) {
-      logger.error('API error', { error: error.message, code: error.code });
-      throw new DataFetchError('Failed to fetch data', { cause: error });
+      logger.error('API error', {error: error.message, code: error.code});
+      throw new DataFetchError('Failed to fetch data', {cause: error});
     }
     throw error;
   }
@@ -69,6 +77,7 @@ async function fetchData(): Promise<Data> {
 ```
 
 #### Concurrent Operations
+
 - Use `Promise.all()` for parallel operations
 - Use `Promise.allSettled()` when some failures are acceptable
 - Use `Promise.race()` for timeout patterns
@@ -76,6 +85,7 @@ async function fetchData(): Promise<Data> {
 ### 4. Error Handling Strategy
 
 #### Custom Error Classes
+
 ```typescript
 class AppError extends Error {
   constructor(
@@ -92,6 +102,7 @@ class AppError extends Error {
 ```
 
 #### Error Propagation
+
 - Create domain-specific error classes
 - Include context in errors for debugging
 - Use error cause chains (ES2022): `{ cause: originalError }`
@@ -102,6 +113,7 @@ class AppError extends Error {
 #### Module Structure
 
 **Recommended Structure**:
+
 ```
 src/
 ├── errors/                       # Custom error classes
@@ -122,18 +134,22 @@ src/
 ```
 
 **Organization Principles**:
+
 - Group related functionality in feature directories
 - Keep types, implementation, and tests colocated (see testing-instructions.md for testing organization)
 - Separate concerns (errors, services, utils, models)
 
-> **Testing**: For comprehensive testing organization, colocation patterns, and test file structure, see [Testing Instructions](.agents/testing-instructions.md).
+> **Testing**: For comprehensive testing organization, colocation patterns, and test file structure,
+> see [Testing Instructions](.agents/typescript-node/instructions/testing.md).
 
 #### Dependency Injection
+
 - Use constructor injection for dependencies
 - Avoid tight coupling to concrete implementations
 - Use interfaces for dependencies
 
 #### Single Responsibility
+
 - Each module should have one reason to change
 - Keep functions small and focused (< 50 lines)
 - Extract complex logic into separate functions
@@ -142,19 +158,22 @@ src/
 
 All testing guidance has been consolidated in a dedicated document:
 
-> **[Testing Instructions](.agents/testing-instructions.md)**
+> **[Testing Instructions](.agents/typescript-node/instructions/testing.md)**
 
 **Quick Reference**:
+
 - Use Test-Driven Development (TDD) for all features
 - Maintain 80-100% code coverage
 - Mock all external dependencies
 - Tests are collocated with implementation files
 
-For detailed guidance on test structure, mocking patterns, coverage requirements, edge case testing, and development workflow integration, refer to the testing instructions document.
+For detailed guidance on test structure, mocking patterns, coverage requirements, edge case testing, and development
+workflow integration, refer to the testing instructions document.
 
 ### 7. Logging and Monitoring
 
 #### Structured Logging
+
 ```typescript
 // Use structured logging with context
 logger.info('User created', {
@@ -169,6 +188,7 @@ logger.info('User created', {
 ```
 
 #### Logging Libraries
+
 - Use `pino` or `winston` for structured JSON logging
 - Include correlation IDs for request tracing
 - Never log sensitive data (passwords, tokens, PII)
@@ -176,9 +196,10 @@ logger.info('User created', {
 ### 8. Environment Configuration
 
 #### Environment Variables
+
 ```typescript
 // config/env.ts
-import { z } from 'zod';
+import {z} from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']),
@@ -192,6 +213,7 @@ export const env = envSchema.parse(process.env);
 ```
 
 #### Configuration Best Practices
+
 - Validate environment variables at startup
 - Use `.env` files for local development
 - Never commit secrets to version control
@@ -200,11 +222,13 @@ export const env = envSchema.parse(process.env);
 ### 9. Database Patterns
 
 #### Connection Management
+
 - Use connection pooling
 - Implement graceful shutdown
 - Handle connection errors with retries
 
 #### Query Patterns
+
 ```typescript
 // Use parameterized queries to prevent SQL injection
 const user = await db.query(
@@ -220,6 +244,7 @@ await db.transaction(async (trx) => {
 ```
 
 #### Migrations
+
 - Version control all schema changes
 - Use migration tools (e.g., `node-pg-migrate`, `kysely`)
 - Never modify existing migrations
@@ -228,12 +253,14 @@ await db.transaction(async (trx) => {
 ### 10. API Design (if applicable)
 
 #### RESTful Conventions
+
 - Use proper HTTP methods: GET, POST, PUT, PATCH, DELETE
 - Return appropriate status codes
 - Use consistent response formats
 - Version APIs: `/api/v1/...`
 
 #### Input Validation
+
 ```typescript
 // Use Zod or similar for runtime validation
 const createUserSchema = z.object({
@@ -248,6 +275,7 @@ type CreateUserInput = z.infer<typeof createUserSchema>;
 ### 11. Performance Considerations
 
 #### Optimization
+
 - Profile before optimizing
 - Use appropriate data structures
 - Implement caching where beneficial
@@ -255,6 +283,7 @@ type CreateUserInput = z.infer<typeof createUserSchema>;
 - Use streaming for large datasets
 
 #### Memory Management
+
 - Avoid memory leaks from unclosed connections
 - Clear timers and intervals
 - Remove event listeners when done
@@ -263,15 +292,18 @@ type CreateUserInput = z.infer<typeof createUserSchema>;
 ### 12. Code Quality
 
 #### Linting and Formatting
+
 - Use ESLint with TypeScript rules
 - Use Prettier for consistent formatting
 - Run linters in CI/CD pipeline
 - Configure pre-commit hooks
 
 #### Code Review Checklist
+
 - [ ] All functions have explicit return types
 - [ ] Error handling is comprehensive
-- [ ] Tests cover new functionality (see [testing-instructions.md](.agents/testing-instructions.md) for testing guidelines)
+- [ ] Tests cover new functionality (see [testing-instructions.md](.agents/typescript-node/instructions/testing.md) for
+  testing guidelines)
 - [ ] No hardcoded values (use constants/config)
 - [ ] Logging is appropriate and structured
 - [ ] No commented-out code
@@ -280,12 +312,14 @@ type CreateUserInput = z.infer<typeof createUserSchema>;
 ### 13. Documentation
 
 #### Code Comments
+
 - Write self-documenting code (clear names)
 - Comment the "why", not the "what"
 - Use JSDoc for public APIs
 - Keep comments up to date
 
 #### JSDoc Example
+
 ```typescript
 /**
  * Fetches user data from the API with retry logic.
@@ -309,61 +343,66 @@ async function fetchUser(
 ### For Every Code Change:
 
 1. **Understand Requirements**
-   - Clarify the feature or bug
-   - Identify affected components
-   - Consider edge cases
+    - Clarify the feature or bug
+    - Identify affected components
+    - Consider edge cases
 
 2. **Write Tests First**
-   - Follow TDD workflow (see [testing-instructions.md](.agents/testing-instructions.md))
-   - Write failing tests, implement minimal solution, refactor
+    - Follow TDD workflow (see [testing-instructions.md](.agents/typescript-node/instructions/testing.md))
+    - Write failing tests, implement minimal solution, refactor
 
 3. **Implement Minimal Solution**
-   - Write just enough code to pass tests
-   - Keep it simple and readable
-   - Follow YAGNI (You Aren't Gonna Need It)
+    - Write just enough code to pass tests
+    - Keep it simple and readable
+    - Follow YAGNI (You Aren't Gonna Need It)
 
 4. **Run All Tests**
-   - Run `npm run test:coverage`
-   - Verify coverage meets requirements (see [testing-instructions.md](.agents/testing-instructions.md))
+    - Run `npm run test:coverage`
+    - Verify coverage meets requirements (
+      see [testing-instructions.md](.agents/typescript-node/instructions/testing.md))
 
 5. **Refactor**
-   - Improve code structure while tests pass
-   - Extract duplicated code
-   - Improve naming
-   - Commit: `refactor: improve [component]`
+    - Improve code structure while tests pass
+    - Extract duplicated code
+    - Improve naming
+    - Commit: `refactor: improve [component]`
 
 6. **Code Review Self-Check**
-   - Review your own changes
-   - Check against style guide
-   - Ensure documentation is updated
+    - Review your own changes
+    - Check against style guide
+    - Ensure documentation is updated
 
 7. **Commit with Conventional Commits**
-   - `feat: add user authentication`
-   - `fix: resolve memory leak in connection pool`
-   - `test: add integration tests for API`
-   - `docs: update README with setup instructions`
-   - `refactor: simplify error handling logic`
+    - `feat: add user authentication`
+    - `fix: resolve memory leak in connection pool`
+    - `test: add integration tests for API`
+    - `docs: update README with setup instructions`
+    - `refactor: simplify error handling logic`
 
 ## Security Best Practices
 
 ### Input Validation
+
 - Validate all external input
 - Sanitize data before database operations
 - Use parameterized queries
 
 ### Authentication & Authorization
+
 - Never store passwords in plain text
 - Use bcrypt or argon2 for password hashing
 - Implement rate limiting
 - Use JWT tokens with expiration
 
 ### Dependency Management
+
 - Regularly update dependencies
 - Audit for security vulnerabilities: `npm audit`
 - Use lock files (`pnpm-lock.yaml`)
 - Review dependency licenses
 
 ### Secrets Management
+
 - Use environment variables for secrets
 - Never log secrets
 - Rotate credentials regularly
@@ -372,6 +411,7 @@ async function fetchUser(
 ## Production Readiness
 
 ### Health Checks
+
 ```typescript
 // Implement health check endpoint
 app.get('/health', async (req, res) => {
@@ -381,7 +421,7 @@ app.get('/health', async (req, res) => {
   const health = {
     status: dbHealth && apiHealth ? 'healthy' : 'unhealthy',
     timestamp: new Date().toISOString(),
-    checks: { database: dbHealth, api: apiHealth },
+    checks: {database: dbHealth, api: apiHealth},
   };
 
   res.status(health.status === 'healthy' ? 200 : 503).json(health);
@@ -389,6 +429,7 @@ app.get('/health', async (req, res) => {
 ```
 
 ### Graceful Shutdown
+
 ```typescript
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
@@ -407,6 +448,7 @@ process.on('SIGTERM', async () => {
 ```
 
 ### Monitoring
+
 - Implement application metrics
 - Track error rates
 - Monitor response times
@@ -415,16 +457,18 @@ process.on('SIGTERM', async () => {
 ## General Development Guidelines
 
 ### Type Definitions
+
 - **Use `interface` for**:
-  - API response shapes
-  - Data contracts and object structures
-  - Types that may need extension or declaration merging
+    - API response shapes
+    - Data contracts and object structures
+    - Types that may need extension or declaration merging
 - **Use `type` for**:
-  - Union types, intersections
-  - Utility types and mapped types
-  - Function signatures
+    - Union types, intersections
+    - Utility types and mapped types
+    - Function signatures
 
 **Example**:
+
 ```typescript
 // Good: Interface for API response
 export interface ApiResponse {
@@ -442,6 +486,7 @@ type TaskFunction = () => Promise<void>;
 ### Error Class Pattern
 
 **Recommended Pattern**:
+
 ```typescript
 export class CustomError extends Error {
   constructor(
@@ -471,6 +516,7 @@ export class ValidationError extends CustomError {
 ```
 
 **Key Points**:
+
 - Always set `this.name` using `this.constructor.name`
 - Include `Error.captureStackTrace()` for better debugging
 - Add context properties relevant to the error type
@@ -479,15 +525,17 @@ export class ValidationError extends CustomError {
 ### Environment Configuration
 
 **Best Practices**:
+
 - Store sensitive data in environment variables
 - Use `.env` for local development (gitignored)
 - Validate required variables at startup
 - Document all required variables
 
 **Example**:
+
 ```typescript
 // config/env.ts
-import { z } from 'zod';
+import {z} from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']),
@@ -501,16 +549,20 @@ export const env = envSchema.parse(process.env);
 ### Naming Conventions
 
 **Files**:
+
 - PascalCase for types/interfaces: `UserResponse.ts`
 - camelCase for implementation: `fetchUser.ts`
-- Test files mirror implementation: `fetchUser.test.ts` (see [testing-instructions.md](.agents/testing-instructions.md) for test naming)
+- Test files mirror implementation: `fetchUser.test.ts` (
+  see [testing-instructions.md](.agents/typescript-node/instructions/testing.md) for test naming)
 
 **Functions**:
+
 - Use verb prefixes: `fetchData`, `saveRecord`, `validateInput`
 - Async functions return `Promise<T>`
 - Export as default for single-purpose modules
 
 **Variables**:
+
 - camelCase for local variables: `userId`, `apiKey`
 - UPPER_SNAKE_CASE for constants: `MAX_RETRIES`, `API_TIMEOUT_MS`
 - Descriptive names over brevity: `userResponse` not `res`
@@ -518,7 +570,8 @@ export const env = envSchema.parse(process.env);
 ## Summary
 
 When generating code, always:
-- ✅ Write tests first (see [testing-instructions.md](.agents/testing-instructions.md) for TDD workflow)
+
+- ✅ Write tests first (see [testing-instructions.md](.agents/typescript-node/instructions/testing.md) for TDD workflow)
 - ✅ Use strict TypeScript with explicit types
 - ✅ Handle all errors appropriately
 - ✅ Follow async/await patterns
@@ -532,7 +585,7 @@ When generating code, always:
 - ✅ Consider performance and scalability
 - ✅ Make code reviewable and maintainable
 - ✅ Use interfaces for data contracts, types for utilities
-- ✅ Follow testing best practices (see [testing-instructions.md](.agents/testing-instructions.md))
+- ✅ Follow testing best practices (see [testing-instructions.md](.agents/typescript-node/instructions/testing.md))
 - ✅ Follow consistent naming conventions
 - ✅ Organize code by feature/domain
 

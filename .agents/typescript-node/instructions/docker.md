@@ -2,7 +2,9 @@
 
 ## Overview
 
-This guide defines how to containerize applications, supporting both **fast local development** with hot-reload and **production-ready deployments**. The setup uses Docker Compose for orchestration and can be adapted for both single applications and monorepo structures.
+This guide defines how to containerize applications, supporting both **fast local development** with hot-reload and *
+*production-ready deployments**. The setup uses Docker Compose for orchestration and can be adapted for both single
+applications and monorepo structures.
 
 ## Philosophy
 
@@ -15,18 +17,21 @@ This guide defines how to containerize applications, supporting both **fast loca
 ## When to Use Docker
 
 ### Development Mode (Option A - Fast Iteration)
+
 - **Daily development** with hot-reload and instant feedback
 - Run entire stack locally: `docker compose up`
 - Changes to source code instantly reflected in running containers
 - Full dev/prod parity (same database, same environment)
 
 ### Production Validation (Option B - Before Release)
+
 - **CI/CD pipelines** and automated testing
 - **Pre-release validation** to test production builds locally
 - Ensures production image works correctly before deployment
 - Use: `docker compose -f docker-compose.prod.yml up`
 
 ### Production Deployment
+
 - Cloud platforms (AWS ECS, GCP Cloud Run, Azure Container Apps, etc.)
 - Kubernetes clusters
 - Any Docker-compatible hosting environment
@@ -323,7 +328,8 @@ CMD ["node", "apps/{app-name}/dist/index.js"]
 
 ## .dockerignore Template
 
-Create `.dockerignore` in each app directory (or project root for single apps) to exclude unnecessary files from Docker context.
+Create `.dockerignore` in each app directory (or project root for single apps) to exclude unnecessary files from Docker
+context.
 
 ```
 # Dependencies (will be installed in container)
@@ -384,10 +390,10 @@ version: '3.9'
 services:
   app-dev:
     build:
-      context: .
+      context: ../..
       dockerfile: Dockerfile
       target: development
-    container_name: {project-name}-app-dev
+    container_name: { project-name }-app-dev
     restart: unless-stopped
     volumes:
       # Mount source code for hot-reload
@@ -413,12 +419,12 @@ services:
   # Example: PostgreSQL database (adjust for your needs)
   db:
     image: postgres:16-alpine
-    container_name: {project-name}-db
+    container_name: { project-name }-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: {database-name}
-      POSTGRES_USER: {database-user}
-      POSTGRES_PASSWORD: {database-password}
+      POSTGRES_DB: { database-name }
+      POSTGRES_USER: { database-user }
+      POSTGRES_PASSWORD: { database-password }
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -426,7 +432,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U {database-user} -d {database-name}"]
+      test: [ "CMD-SHELL", "pg_isready -U {database-user} -d {database-name}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -449,67 +455,67 @@ services:
   # =============================================================================
   # Application 1 (development with hot-reload)
   # =============================================================================
-  {app-name}-dev:
-    build:
-      context: .                        # Build from monorepo root
-      dockerfile: apps/{app-name}/Dockerfile
-      target: development
-    container_name: {project-name}-{app-name}-dev
-    restart: unless-stopped
-    volumes:
-      # Mount source code for hot-reload
-      - ./apps/{app-name}/src:/app/apps/{app-name}/src:cached
-      # Mount config files (read-only)
-      - ./apps/{app-name}/tsconfig.json:/app/apps/{app-name}/tsconfig.json:ro
-      - ./apps/{app-name}/package.json:/app/apps/{app-name}/package.json:ro
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://user:password@db:5432/dbname
-    env_file:
-      - apps/{app-name}/.env.docker
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - {app-name}-network
-      - shared-services
-    # Uncomment if app exposes HTTP port
-    # ports:
-    #   - "3000:3000"
+  { app-name }-dev:
+                build:
+                  context: .                        # Build from monorepo root
+                  dockerfile: apps/{app-name}/Dockerfile
+                  target: development
+                container_name: { project-name }-{app-name}-dev
+                restart: unless-stopped
+                volumes:
+                  # Mount source code for hot-reload
+                  - ./apps/{app-name}/src:/app/apps/{app-name}/src:cached
+                  # Mount config files (read-only)
+                  - ./apps/{app-name}/tsconfig.json:/app/apps/{app-name}/tsconfig.json:ro
+                  - ./apps/{app-name}/package.json:/app/apps/{app-name}/package.json:ro
+                environment:
+                  NODE_ENV: development
+                  DATABASE_URL: postgresql://user:password@db:5432/dbname
+                env_file:
+                  - apps/{app-name}/.env.docker
+                depends_on:
+                  db:
+                    condition: service_healthy
+                networks:
+                  - { app-name }-network
+                  - shared-services
+                # Uncomment if app exposes HTTP port
+                # ports:
+                #   - "3000:3000"
 
   # =============================================================================
   # Shared Service: Database
   # =============================================================================
-  db:
-    image: postgres:16-alpine
-    container_name: {project-name}-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: {database-name}
-      POSTGRES_USER: {database-user}
-      POSTGRES_PASSWORD: {database-password}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - shared-services
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U {database-user} -d {database-name}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+              db:
+                image: postgres:16-alpine
+                container_name: { project-name }-db
+                restart: unless-stopped
+                environment:
+                  POSTGRES_DB: { database-name }
+                  POSTGRES_USER: { database-user }
+                  POSTGRES_PASSWORD: { database-password }
+                volumes:
+                  - postgres-data:/var/lib/postgresql/data
+                ports:
+                  - "5432:5432"
+                networks:
+                  - shared-services
+                healthcheck:
+                  test: [ "CMD-SHELL", "pg_isready -U {database-user} -d {database-name}" ]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 5
+                  start_period: 10s
 
 # =============================================================================
 # Networks: Isolated per-app + shared services
 # =============================================================================
 networks:
-  shared-services:
-    driver: bridge
+              shared-services:
+                driver: bridge
 
-  {app-name}-network:
-    driver: bridge
+  { app-name }-network:
+                driver: bridge
 
 # =============================================================================
 # Volumes: Persistent data storage
@@ -531,8 +537,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: {project-name}-app:latest
-    container_name: {project-name}-app
+    image: { project-name }-app:latest
+    container_name: { project-name }-app
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -550,18 +556,18 @@ services:
 
   db:
     image: postgres:16-alpine
-    container_name: {project-name}-db
+    container_name: { project-name }-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: {database-name}
-      POSTGRES_USER: {database-user}
+      POSTGRES_DB: { database-name }
+      POSTGRES_USER: { database-user }
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U {database-user} -d {database-name}"]
+      test: [ "CMD-SHELL", "pg_isready -U {database-user} -d {database-name}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -580,13 +586,13 @@ volumes:
 version: '3.9'
 
 services:
-  {app-name}:
+  { app-name }:
     build:
       context: .
       dockerfile: apps/{app-name}/Dockerfile
       target: production
-    image: {project-name}-{app-name}:latest
-    container_name: {project-name}-{app-name}
+    image: { project-name }-{app-name}:latest
+    container_name: { project-name }-{app-name}
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -597,35 +603,35 @@ services:
       db:
         condition: service_healthy
     networks:
-      - {app-name}-network
+      - { app-name }-network
       - shared-services
     # Uncomment for HTTP apps
     # ports:
     #   - "3000:3000"
 
-  db:
-    image: postgres:16-alpine
-    container_name: {project-name}-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: {database-name}
-      POSTGRES_USER: {database-user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - shared-services
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U {database-user} -d {database-name}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    db:
+      image: postgres:16-alpine
+      container_name: { project-name }-db
+      restart: unless-stopped
+      environment:
+        POSTGRES_DB: { database-name }
+        POSTGRES_USER: { database-user }
+        POSTGRES_PASSWORD: ${DB_PASSWORD}
+      volumes:
+        - postgres-data:/var/lib/postgresql/data
+      networks:
+        - shared-services
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U {database-user} -d {database-name}" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
 
 networks:
-  shared-services:
-    driver: bridge
-  {app-name}-network:
-    driver: bridge
+              shared-services:
+                driver: bridge
+  { app-name }-network:
+                driver: bridge
 
 volumes:
   postgres-data:
@@ -820,6 +826,7 @@ Each app runs in its own isolated network but can access shared services:
 ```
 
 **Key Points:**
+
 - Apps cannot directly communicate with each other (isolated)
 - All apps can access shared services (database, cache, etc.)
 - Easy to add inter-app communication later by connecting networks
@@ -865,8 +872,8 @@ networks:
    ```
 
 3. **Node modules (not mounted)**: Keep container's installation
-   - Don't mount `node_modules` - let container manage it
-   - If needed, use named volume to cache
+    - Don't mount `node_modules` - let container manage it
+    - If needed, use named volume to cache
 
 ### Performance Optimization
 
@@ -888,6 +895,7 @@ volumes:
 **Problem**: Dependencies not installed or path aliases not resolved.
 
 **Solution**:
+
 ```bash
 # Rebuild without cache
 docker compose build --no-cache {app-name}-dev
@@ -904,6 +912,7 @@ docker compose exec {app-name}-dev cat tsconfig.json
 **Problem**: Changes to source files don't reflect in running container.
 
 **Solution**:
+
 ```bash
 # Check volume mounts
 docker compose exec {app-name}-dev ls -la /app/src
@@ -920,6 +929,7 @@ docker compose restart {app-name}-dev
 **Problem**: App can't connect to database.
 
 **Solution**:
+
 ```bash
 # Check database is healthy
 docker compose ps db
@@ -940,6 +950,7 @@ docker compose exec {app-name}-dev nc -zv db 5432
 **Problem**: Container starts then stops right away.
 
 **Solution**:
+
 ```bash
 # Check logs for errors
 docker compose logs {app-name}-dev
@@ -956,6 +967,7 @@ docker compose exec {app-name}-dev env
 **Problem**: `Error: bind: address already in use`
 
 **Solution**:
+
 ```bash
 # Find process using the port
 lsof -i :5432
@@ -976,6 +988,7 @@ ports:
 **Problem**: Container can't write files or access resources.
 
 **Solution**:
+
 ```dockerfile
 # Ensure proper ownership
 COPY --chown=appuser:appuser --from=build /app/dist ./dist
@@ -989,6 +1002,7 @@ RUN mkdir -p /app/data && chown appuser:appuser /app/data
 **Problem**: Old data remains after stopping containers.
 
 **Solution**:
+
 ```bash
 # Remove volumes when stopping
 docker compose down -v
@@ -1014,6 +1028,7 @@ USER appuser
 ### 2. Environment Variables
 
 **Never commit secrets:**
+
 ```bash
 # ❌ Bad - committed to git
 DATABASE_URL=postgresql://user:password@localhost/db
@@ -1023,12 +1038,14 @@ echo "DATABASE_URL=postgresql://user:password@localhost/db" > .env.docker
 ```
 
 **Use separate files:**
+
 - `.env.docker.example` - Template, committed
 - `.env.docker` - Actual secrets, gitignored
 
 ### 3. Network Isolation
 
 Apps are isolated by default:
+
 ```yaml
 networks:
   - app-specific-network  # Isolated
@@ -1038,6 +1055,7 @@ networks:
 ### 4. Read-Only Mounts
 
 Use `:ro` for files that shouldn't change:
+
 ```yaml
 volumes:
   - ./package.json:/app/package.json:ro
@@ -1046,6 +1064,7 @@ volumes:
 ### 5. Minimal Base Images
 
 Use slim variants:
+
 ```dockerfile
 FROM node:25-slim  # Not node:25 (much larger)
 ```
@@ -1053,6 +1072,7 @@ FROM node:25-slim  # Not node:25 (much larger)
 ### 6. Explicit Dependencies
 
 Pin exact versions:
+
 ```dockerfile
 FROM node:25-slim              # ❌ Can change
 FROM node:25.0.0-slim          # ✅ Reproducible
@@ -1067,9 +1087,9 @@ name: Build and Test with Docker
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main, develop ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   test:
@@ -1113,42 +1133,46 @@ jobs:
 While examples in this guide use PostgreSQL, Docker supports any database:
 
 ### PostgreSQL
+
 ```yaml
 db:
   image: postgres:16-alpine
   environment:
-    POSTGRES_DB: {database-name}
-    POSTGRES_USER: {database-user}
+    POSTGRES_DB: { database-name }
+    POSTGRES_USER: { database-user }
     POSTGRES_PASSWORD: ${DB_PASSWORD}
   healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U {database-user}"]
+    test: [ "CMD-SHELL", "pg_isready -U {database-user}" ]
 ```
 
 ### MySQL
+
 ```yaml
 db:
   image: mysql:8.0
   environment:
-    MYSQL_DATABASE: {database-name}
-    MYSQL_USER: {database-user}
+    MYSQL_DATABASE: { database-name }
+    MYSQL_USER: { database-user }
     MYSQL_PASSWORD: ${DB_PASSWORD}
     MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
   healthcheck:
-    test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
 ```
 
 ### MongoDB
+
 ```yaml
 db:
   image: mongo:7
   environment:
-    MONGO_INITDB_ROOT_USERNAME: {database-user}
+    MONGO_INITDB_ROOT_USERNAME: { database-user }
     MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
   healthcheck:
-    test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+    test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
 ```
 
 ### Redis
+
 ```yaml
 cache:
   image: redis:7-alpine
@@ -1156,7 +1180,7 @@ cache:
     REDIS_PASSWORD: ${REDIS_PASSWORD}
   command: redis-server --requirepass ${REDIS_PASSWORD}
   healthcheck:
-    test: ["CMD", "redis-cli", "ping"]
+    test: [ "CMD", "redis-cli", "ping" ]
 ```
 
 ## Performance Tips

@@ -229,28 +229,32 @@ You must not:
 The following category-specific instruction files are available in `.agents/`:
 
 ### When Writing Code
-- **`.agents/coding-instructions.md`**
-  - Apply when writing, modifying, or reviewing TypeScript/Node.js code
-  - Contains type safety guidelines, error handling patterns, code organization
-  - Defines naming conventions, testing approach, and security best practices
+
+- **`.agents/typescript-node/instructions/coding.md`**
+    - Apply when writing, modifying, or reviewing TypeScript/Node.js code
+    - Contains type safety guidelines, error handling patterns, code organization
+    - Defines naming conventions, testing approach, and security best practices
 
 ### When Conducting Research
-- **`.agents/research-instructions.md`**
-  - Apply when researching technologies, APIs, databases, or architectures
-  - Contains research methodology, source evaluation, documentation standards
-  - Defines templates for API research, technology evaluation, and decision rationale
+
+- **`.agents/common/instructions/research.md`**
+    - Apply when researching technologies, APIs, databases, or architectures
+    - Contains research methodology, source evaluation, documentation standards
+    - Defines templates for API research, technology evaluation, and decision rationale
 
 ### When Writing Tests
-- **`.agents/testing-instructions.md`**
-  - Apply when writing tests or implementing TDD workflow
-  - Contains comprehensive testing guidelines, coverage requirements
-  - Defines mocking patterns, test structure, and CI/CD integration
+
+- **`.agents/typescript-node/instructions/testing.md`**
+    - Apply when writing tests or implementing TDD workflow
+    - Contains comprehensive testing guidelines, coverage requirements
+    - Defines mocking patterns, test structure, and CI/CD integration
 
 ### When Setting Up Docker
-- **`.agents/docker-instructions.md`**
-  - Apply when containerizing applications or setting up Docker environments
-  - Contains Dockerfile templates, Docker Compose configurations
-  - Defines development vs production patterns, networking, and troubleshooting
+
+- **`.agents/typescript-node/instructions/docker.md`**
+    - Apply when containerizing applications or setting up Docker environments
+    - Contains Dockerfile templates, Docker Compose configurations
+    - Defines development vs production patterns, networking, and troubleshooting
 
 All instruction files are project-agnostic and provide general best practices applicable to any new project.
 
