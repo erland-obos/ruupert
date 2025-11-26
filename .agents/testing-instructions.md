@@ -72,12 +72,90 @@ export default defineConfig({
 }
 ```
 
+## Testing Within Code Organization
+
+### Module Structure Integration
+
+Tests should be collocated with implementation files within feature directories:
+
+```
+src/
+├── services/
+│   └── {feature}/
+│       ├── types/               # TypeScript interfaces
+│       ├── {feature}.ts         # Implementation
+│       └── {feature}.test.ts    # Tests (collocated)
+```
+
+**Organization Principles**:
+- Keep types, implementation, and tests colocated
+- Tests live alongside implementation files
+- Each feature directory is self-contained with its tests
+- Separate concerns while maintaining proximity
+
+**Benefits**:
+- Easy to find related tests
+- Changes to implementation prompt test updates
+- Clear module boundaries with their test coverage
+- Simplifies refactoring and code navigation
+
+## Testing in Development Workflow
+
+### Iterative Development with TDD
+
+When implementing any feature or bug fix, follow this workflow:
+
+**Step 1: Write Tests First**
+- Write failing test(s) for new behavior
+- Run tests to confirm they fail with expected message
+- Define the API/interface through test usage
+- Commit: `test: add tests for [feature]`
+
+**Step 2: Implement Minimal Solution**
+- Write just enough code to pass tests
+- Keep it simple and readable
+- Follow YAGNI (You Aren't Gonna Need It)
+
+**Step 3: Run All Tests**
+- Ensure all tests pass (not just the new ones)
+- Check code coverage with `npm run test:coverage`
+- Fix any failing tests immediately
+- Verify coverage meets requirements (80% minimum, 100% goal)
+
+**Step 4: Refactor**
+- Improve code structure while tests remain green
+- Extract duplicated code
+- Improve naming and clarity
+- Run tests after each refactor
+- Commit: `refactor: improve [component]`
+
+**Integration with Code Reviews**:
+- All pull requests must include tests
+- Review test coverage report before submitting
+- Tests should clearly document expected behavior
+- Edge cases and error scenarios must be tested
+
 ## Test File Organization
 
 ### Naming Convention
 
 - **Test files**: `{feature}.test.ts` or `{feature}.spec.ts`
 - **Location**: Collocated with implementation files
+
+### Naming Mirrors Implementation
+
+Test files should mirror the structure and naming of implementation files:
+
+**Examples**:
+- Implementation: `fetchUser.ts` → Test: `fetchUser.test.ts`
+- Implementation: `services/auth/authenticate.ts` → Test: `services/auth/authenticate.test.ts`
+- Implementation: `utils/formatDate.ts` → Test: `utils/formatDate.test.ts`
+
+**Rationale**:
+- Easy to locate corresponding test file
+- Consistent naming reduces cognitive load
+- IDE tooling can easily pair implementation and tests
+- Code navigation is intuitive
 
 ### Test Structure Template
 
@@ -471,6 +549,28 @@ npm test path/to/test.test.ts
 - [ ] Test names clearly describe expected behavior
 - [ ] All async operations properly awaited
 - [ ] All resources cleaned up in `afterEach` or `afterAll`
+
+## Code Review: Testing Guidelines
+
+### What Reviewers Should Check
+
+When reviewing pull requests, verify:
+
+- [ ] **Tests included**: All new functionality has corresponding tests
+- [ ] **Coverage maintained**: Coverage report shows ≥80% (ideally 100%)
+- [ ] **Edge cases tested**: Null, undefined, empty values, boundaries
+- [ ] **Error scenarios tested**: Network failures, invalid input, exceptions
+- [ ] **Mocks properly configured**: All external dependencies mocked
+- [ ] **Tests are deterministic**: No flaky or timing-dependent tests
+- [ ] **Test names descriptive**: Clearly describe expected behavior
+- [ ] **Follows TDD patterns**: Test structure matches established conventions
+- [ ] **No commented tests**: All tests should be active (or removed if obsolete)
+- [ ] **Resources cleaned up**: afterEach/afterAll properly configured
+
+### Integration with Broader Code Review
+
+For comprehensive code review guidelines beyond testing, see:
+> **[Coding Instructions](.agents/coding-instructions.md)** - Section: Code Quality → Code Review Checklist
 
 ## Summary
 

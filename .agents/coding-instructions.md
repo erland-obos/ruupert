@@ -112,7 +112,7 @@ src/
 │   └── {feature}/
 │       ├── types/               # TypeScript interfaces
 │       ├── {feature}.ts         # Implementation
-│       └── {feature}.test.ts    # Tests
+│       └── {feature}.test.ts    # Tests (see testing-instructions.md)
 ├── utils/                        # Shared utilities
 │   ├── logger.ts
 │   └── config.ts
@@ -123,9 +123,10 @@ src/
 
 **Organization Principles**:
 - Group related functionality in feature directories
-- Keep types, implementation, and tests colocated
-- Tests live alongside implementation files
+- Keep types, implementation, and tests colocated (see testing-instructions.md for testing organization)
 - Separate concerns (errors, services, utils, models)
+
+> **Testing**: For comprehensive testing organization, colocation patterns, and test file structure, see [Testing Instructions](.agents/testing-instructions.md).
 
 #### Dependency Injection
 - Use constructor injection for dependencies
@@ -139,160 +140,17 @@ src/
 
 ### 6. Testing Strategy
 
-#### Test-Driven Development (TDD)
-**For every new feature or bug fix:**
-1. **Write the test first** that describes the expected behavior
-2. **Run the test** and watch it fail
-3. **Write minimal code** to make the test pass
-4. **Refactor** while keeping tests green
-5. **Commit** with tests
+All testing guidance has been consolidated in a dedicated document:
 
-#### Test Structure
-```typescript
-describe('UserService', () => {
-  describe('createUser', () => {
-    it('should create a user with valid data', async () => {
-      // Arrange
-      const userData = { email: 'test@example.com', name: 'Test User' };
-      const mockRepo = createMockUserRepository();
-      const service = new UserService(mockRepo);
+> **[Testing Instructions](.agents/testing-instructions.md)**
 
-      // Act
-      const user = await service.createUser(userData);
-
-      // Assert
-      expect(user).toBeDefined();
-      expect(user.email).toBe(userData.email);
-      expect(mockRepo.save).toHaveBeenCalledWith(expect.objectContaining(userData));
-    });
-
-    it('should throw ValidationError for invalid email', async () => {
-      // Arrange
-      const userData = { email: 'invalid-email', name: 'Test User' };
-      const service = new UserService(createMockUserRepository());
-
-      // Act & Assert
-      await expect(service.createUser(userData)).rejects.toThrow(ValidationError);
-    });
-  });
-});
-```
-
-#### Test Coverage Requirements
-- **Minimum 80% code coverage** for all new code
-- **100% coverage for critical paths**: authentication, payment, data integrity
-- **Test all edge cases**: null, undefined, empty arrays, boundary values
-- **Test error scenarios**: network failures, invalid input, timeouts
-
-#### Test Types
-
-**Unit Tests**
-- Test individual functions and classes in isolation
+**Quick Reference**:
+- Use Test-Driven Development (TDD) for all features
+- Maintain 80-100% code coverage
 - Mock all external dependencies
-- Fast execution (< 1ms per test)
-- File naming: `*.test.ts` or `*.spec.ts`
+- Tests are collocated with implementation files
 
-**Integration Tests**
-- Test multiple components working together
-- Use test database or in-memory implementations
-- Test API endpoints, database operations
-- File naming: `*.integration.test.ts`
-
-**E2E Tests (when applicable)**
-- Test complete user flows
-- Use real or staging environment
-- Limited number, focusing on critical paths
-
-#### Testing Tools
-
-**Recommended Setup**:
-- **Test Runner**: Vitest or Jest
-- **Coverage**: @vitest/coverage-v8 or Jest coverage
-- **Assertion Library**: Built-in with test runner
-- **Mocking**: `vi.mock()` (Vitest) or `jest.mock()` (Jest)
-- **Target Coverage**: Minimum 80%, ideally 100%
-
-**Test Runner Configuration**:
-- Single run mode for CI/CD
-- Watch mode for development
-- Coverage reports with appropriate provider
-
-#### Mocking Best Practices
-
-**Node.js Module Mocking**:
-```typescript
-// Mock Node.js built-in modules
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import * as fs from 'node:fs/promises';
-
-vi.mock('node:fs/promises');
-
-describe('writeProjects', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('should write file', async () => {
-    vi.mocked(fs.writeFile).mockResolvedValue(undefined);
-    vi.mocked(fs.access).mockRejectedValue(new Error('File does not exist'));
-
-    // Test implementation
-  });
-});
-```
-
-**Timers and Time-based Tests**:
-```typescript
-import { beforeEach, afterEach, vi } from 'vitest';
-
-beforeEach(() => {
-  vi.useFakeTimers();
-  vi.setSystemTime(new Date('2025-11-25T10:30:45.123Z'));
-});
-
-afterEach(() => {
-  vi.useRealTimers();
-});
-```
-
-**External API Mocking**:
-```typescript
-// Mock global fetch
-globalThis.fetch = vi.fn();
-
-beforeEach(() => {
-  vi.mocked(fetch).mockResolvedValue({
-    ok: true,
-    json: async () => ({ data: 'mock' }),
-  } as Response);
-});
-```
-
-**Reusable Mock Factories**:
-```typescript
-// Create reusable mock factories
-function createMockDatabase(): Database {
-  return {
-    query: vi.fn(), // or jest.fn()
-    transaction: vi.fn(),
-    close: vi.fn(),
-  };
-}
-
-// Use partial mocks when needed
-const mockLogger = {
-  error: vi.fn(), // or jest.fn()
-  warn: vi.fn(),
-  info: vi.fn(),
-} as Logger;
-```
-
-**General Testing Patterns**:
-1. **Mock external dependencies**: Always mock `fs`, `fetch`, and other I/O
-2. **Test error paths**: Verify behavior when mocks reject/throw
-3. **Use fake timers**: For schedulers and time-dependent logic
-4. **Clear mocks**: Reset mock state between tests
-5. **Verify calls**: Check that dependencies are called correctly
+For detailed guidance on test structure, mocking patterns, coverage requirements, edge case testing, and development workflow integration, refer to the testing instructions document.
 
 ### 7. Logging and Monitoring
 
@@ -413,7 +271,7 @@ type CreateUserInput = z.infer<typeof createUserSchema>;
 #### Code Review Checklist
 - [ ] All functions have explicit return types
 - [ ] Error handling is comprehensive
-- [ ] Tests cover new functionality
+- [ ] Tests cover new functionality (see [testing-instructions.md](.agents/testing-instructions.md) for testing guidelines)
 - [ ] No hardcoded values (use constants/config)
 - [ ] Logging is appropriate and structured
 - [ ] No commented-out code
@@ -456,9 +314,8 @@ async function fetchUser(
    - Consider edge cases
 
 2. **Write Tests First**
-   - Write failing test(s) for new behavior
-   - Run tests to confirm they fail
-   - Commit: `test: add tests for [feature]`
+   - Follow TDD workflow (see [testing-instructions.md](.agents/testing-instructions.md))
+   - Write failing tests, implement minimal solution, refactor
 
 3. **Implement Minimal Solution**
    - Write just enough code to pass tests
@@ -466,9 +323,8 @@ async function fetchUser(
    - Follow YAGNI (You Aren't Gonna Need It)
 
 4. **Run All Tests**
-   - Ensure all tests pass
-   - Check code coverage
-   - Fix any failing tests
+   - Run `npm run test:coverage`
+   - Verify coverage meets requirements (see [testing-instructions.md](.agents/testing-instructions.md))
 
 5. **Refactor**
    - Improve code structure while tests pass
@@ -647,7 +503,7 @@ export const env = envSchema.parse(process.env);
 **Files**:
 - PascalCase for types/interfaces: `UserResponse.ts`
 - camelCase for implementation: `fetchUser.ts`
-- Test files mirror implementation: `fetchUser.test.ts`
+- Test files mirror implementation: `fetchUser.test.ts` (see [testing-instructions.md](.agents/testing-instructions.md) for test naming)
 
 **Functions**:
 - Use verb prefixes: `fetchData`, `saveRecord`, `validateInput`
@@ -662,7 +518,7 @@ export const env = envSchema.parse(process.env);
 ## Summary
 
 When generating code, always:
-- ✅ Write tests first (TDD approach)
+- ✅ Write tests first (see [testing-instructions.md](.agents/testing-instructions.md) for TDD workflow)
 - ✅ Use strict TypeScript with explicit types
 - ✅ Handle all errors appropriately
 - ✅ Follow async/await patterns
@@ -676,8 +532,7 @@ When generating code, always:
 - ✅ Consider performance and scalability
 - ✅ Make code reviewable and maintainable
 - ✅ Use interfaces for data contracts, types for utilities
-- ✅ Mock all external dependencies in tests
-- ✅ Maintain high test coverage (minimum 80%, ideally 100%)
+- ✅ Follow testing best practices (see [testing-instructions.md](.agents/testing-instructions.md))
 - ✅ Follow consistent naming conventions
 - ✅ Organize code by feature/domain
 
