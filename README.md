@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> This repository is intended to be used as a set of AI agent instructions. It is not a standalone application.
+> Currently, it only has instructions for Claude Code TypeScript/Node. This will change soon.
+
 # AI Agent Instruction Repository
 
 ## Purpose
