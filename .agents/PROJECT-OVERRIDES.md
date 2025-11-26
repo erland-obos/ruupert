@@ -96,7 +96,8 @@ Do not create global project rules early. Add them only after patterns emerge th
 
 ## How AI Agents Must Read and Apply This File
 
-AI agents must treat `.agents/PROJECT-OVERRIDES.md` as an execution-time modifier of the `.agents` instruction set. The following rules
+AI agents must treat `.agents/PROJECT-OVERRIDES.md` as an execution-time modifier of the `.agents` instruction set. The
+following rules
 apply:
 
 ### 1. Load Order
