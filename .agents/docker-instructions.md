@@ -2,15 +2,15 @@
 
 ## Overview
 
-This guide defines how to containerize applications in the `fuse` monorepo, supporting both **fast local development** with hot-reload and **production-ready deployments**. The setup uses Docker Compose for orchestration and supports multiple applications sharing common services.
+This guide defines how to containerize applications, supporting both **fast local development** with hot-reload and **production-ready deployments**. The setup uses Docker Compose for orchestration and can be adapted for both single applications and monorepo structures.
 
 ## Philosophy
 
 - **Two modes**: Development (hot-reload, volume mounts) and Production (optimized, immutable)
-- **Dev/prod parity**: Same database (PostgreSQL) in both environments
+- **Dev/prod parity**: Same database type in both environments
 - **Simple orchestration**: Docker Compose for all multi-container scenarios
-- **Monorepo-aware**: Each app isolated but sharing infrastructure services
 - **Security by default**: Non-root users, minimal images, no secrets in code
+- **Flexible architecture**: Supports both single-app and multi-app setups
 
 ## When to Use Docker
 
@@ -31,23 +31,36 @@ This guide defines how to containerize applications in the `fuse` monorepo, supp
 - Kubernetes clusters
 - Any Docker-compatible hosting environment
 
-## Project Structure
+## Directory Structure
+
+### Single Application
 
 ```
-fuse/
+project/
+├── Dockerfile                      # Multi-stage: dev + production
+├── docker-compose.yml              # Development: hot-reload
+├── docker-compose.prod.yml         # Production: validation and deployment
+├── .dockerignore                   # Exclude unnecessary files
+├── .env.docker.example             # Template for Docker env vars
+├── .env.docker                     # Actual config - gitignored
+└── src/                            # Source code (mounted in dev mode)
+```
+
+### Monorepo Structure
+
+```
+project/
 ├── docker-compose.yml              # Development: hot-reload, shared services
 ├── docker-compose.prod.yml         # Production: validation and deployment
 ├── .env.docker.example             # Template for shared Docker env vars
 ├── .env.docker                     # Shared config (DB, etc.) - gitignored
-├── apps/
-│   └── {app-name}/
-│       ├── Dockerfile              # Multi-stage: dev + production
-│       ├── .dockerignore           # Exclude unnecessary files
-│       ├── .env.docker.example     # Template for app-specific vars
-│       ├── .env.docker             # App-specific config - gitignored
-│       └── src/                    # Source code (mounted in dev mode)
-└── .claude/
-    └── dockerize-instructions.md   # This file
+└── apps/
+    └── {app-name}/
+        ├── Dockerfile              # Multi-stage: dev + production
+        ├── .dockerignore           # Exclude unnecessary files
+        ├── .env.docker.example     # Template for app-specific vars
+        ├── .env.docker             # App-specific config - gitignored
+        └── src/                    # Source code (mounted in dev mode)
 ```
 
 ## Quick Start
@@ -56,20 +69,20 @@ fuse/
 
 1. **Copy environment templates**:
    ```bash
-   # Root-level (shared services)
+   # For single app
    cp .env.docker.example .env.docker
 
-   # Per-app (API keys, etc.)
-   cp apps/fish/.env.docker.example apps/fish/.env.docker
+   # For monorepo (shared services)
+   cp .env.docker.example .env.docker
+
+   # For monorepo (per-app)
+   cp apps/{app-name}/.env.docker.example apps/{app-name}/.env.docker
    ```
 
 2. **Edit environment files** with your configuration:
    ```bash
-   # Edit shared config
+   # Edit shared or app config
    nano .env.docker
-
-   # Edit app-specific config
-   nano apps/fish/.env.docker
    ```
 
 3. **Start development environment**:
@@ -83,14 +96,14 @@ fuse/
 # Start all services with hot-reload
 docker compose up
 
-# Start specific app only
-docker compose up fish-dev db
+# Start specific app only (monorepo)
+docker compose up {app-name}-dev db
 
 # Rebuild after dependency changes
 docker compose up --build
 
 # View logs
-docker compose logs -f fish-dev
+docker compose logs -f {app-name}-dev
 
 # Stop everything
 docker compose down
@@ -103,14 +116,14 @@ docker compose down
 docker compose -f docker-compose.prod.yml up --build
 
 # Or test specific app
-docker compose -f docker-compose.prod.yml up fish db
+docker compose -f docker-compose.prod.yml up {app-name}
 ```
 
 ## Dockerfile Template
 
 Each app should have a multi-stage Dockerfile supporting both development and production.
 
-### Complete Dockerfile: `apps/{app-name}/Dockerfile`
+### Single Application: `Dockerfile`
 
 ```dockerfile
 # =============================================================================
@@ -118,7 +131,99 @@ Each app should have a multi-stage Dockerfile supporting both development and pr
 # =============================================================================
 FROM node:25-slim AS base
 
-# Install pnpm
+# Install package manager (pnpm example, adjust for npm/yarn)
+RUN corepack enable && corepack prepare pnpm@10 --activate
+
+# Set working directory
+WORKDIR /app
+
+# =============================================================================
+# Stage: dependencies - Install all dependencies
+# =============================================================================
+FROM base AS dependencies
+
+# Copy dependency manifests
+COPY package.json pnpm-lock.yaml ./
+
+# Install ALL dependencies (including devDependencies for development)
+RUN pnpm install --frozen-lockfile
+
+# =============================================================================
+# Stage: development - Hot-reload development environment
+# =============================================================================
+FROM dependencies AS development
+
+# Copy source code
+COPY src ./src
+COPY tsconfig.json ./
+
+# Expose port if app uses HTTP (uncomment and adjust)
+# EXPOSE 3000
+
+# Development uses watch mode (e.g., tsx, nodemon)
+CMD ["pnpm", "dev"]
+
+# =============================================================================
+# Stage: build - Build production bundle
+# =============================================================================
+FROM dependencies AS build
+
+# Copy source code and build configs
+COPY src ./src
+COPY tsconfig.json ./
+COPY esbuild.config.js ./
+
+# Build the application
+RUN pnpm build
+
+# =============================================================================
+# Stage: production - Minimal production runtime
+# =============================================================================
+FROM node:25-slim AS production
+
+# Install package manager
+RUN corepack enable && corepack prepare pnpm@10 --activate
+
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+WORKDIR /app
+
+# Copy dependency manifests
+COPY --chown=appuser:appuser package.json pnpm-lock.yaml ./
+
+# Install production dependencies only
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy built application from build stage
+COPY --chown=appuser:appuser --from=build /app/dist ./dist
+
+# Switch to non-root user
+USER appuser
+
+# Set NODE_ENV
+ENV NODE_ENV=production
+
+# Expose port if needed (uncomment and adjust)
+# EXPOSE 3000
+
+# Health check (uncomment and adjust if app has HTTP endpoint)
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+#   CMD node -e "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+
+# Start the application
+CMD ["node", "dist/index.js"]
+```
+
+### Monorepo Application: `apps/{app-name}/Dockerfile`
+
+```dockerfile
+# =============================================================================
+# Stage: base - Shared base configuration
+# =============================================================================
+FROM node:25-slim AS base
+
+# Install pnpm (or your workspace package manager)
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
 # Set working directory
@@ -146,13 +251,11 @@ FROM dependencies AS development
 # Copy source code
 COPY apps/{app-name}/src ./apps/{app-name}/src
 COPY apps/{app-name}/tsconfig.json ./apps/{app-name}/
-COPY apps/{app-name}/vitest.config.ts ./apps/{app-name}/ 2>/dev/null || true
 
 # Expose port if app uses HTTP (uncomment and adjust)
 # EXPOSE 3000
 
-# Development uses tsx watch mode (run via docker-compose command)
-# Default command can be overridden in docker-compose.yml
+# Development uses workspace filter command
 CMD ["pnpm", "--filter", "{app-name}", "dev"]
 
 # =============================================================================
@@ -213,16 +316,14 @@ CMD ["node", "apps/{app-name}/dist/index.js"]
 ### Key Points
 
 - **Four stages**: `base`, `dependencies`, `development`, `production`
-- **Development target**: Includes devDependencies, runs tsx watch mode
+- **Development target**: Includes devDependencies, runs watch mode
 - **Production target**: Minimal, optimized, non-root user
-- **Build context**: Always from monorepo root (handles workspace structure)
+- **Build context**: For monorepo, always from root (handles workspace structure)
 - **Selective copy**: Only necessary files copied to each stage
 
 ## .dockerignore Template
 
-Create `.dockerignore` in each app directory to exclude unnecessary files from Docker context.
-
-### `apps/{app-name}/.dockerignore`
+Create `.dockerignore` in each app directory (or project root for single apps) to exclude unnecessary files from Docker context.
 
 ```
 # Dependencies (will be installed in container)
@@ -275,96 +376,130 @@ temp
 
 ### Development: `docker-compose.yml`
 
-This is the primary development environment with hot-reload support.
+#### Single Application
+
+```yaml
+version: '3.9'
+
+services:
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: {project-name}-app-dev
+    restart: unless-stopped
+    volumes:
+      # Mount source code for hot-reload
+      - ./src:/app/src:cached
+      # Mount config files (read-only)
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./package.json:/app/package.json:ro
+    environment:
+      NODE_ENV: development
+      # Add your environment variables here
+      DATABASE_URL: postgresql://user:password@db:5432/dbname
+    env_file:
+      - .env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    # Uncomment if app exposes HTTP port
+    # ports:
+    #   - "3000:3000"
+
+  # Example: PostgreSQL database (adjust for your needs)
+  db:
+    image: postgres:16-alpine
+    container_name: {project-name}-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: {database-name}
+      POSTGRES_USER: {database-user}
+      POSTGRES_PASSWORD: {database-password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {database-user} -d {database-name}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+```
+
+#### Monorepo with Multiple Applications
 
 ```yaml
 version: '3.9'
 
 services:
   # =============================================================================
-  # Application: fish (development with hot-reload)
+  # Application 1 (development with hot-reload)
   # =============================================================================
-  fish-dev:
+  {app-name}-dev:
     build:
       context: .                        # Build from monorepo root
-      dockerfile: apps/fish/Dockerfile
-      target: development               # Use development stage
-    container_name: fuse-fish-dev
+      dockerfile: apps/{app-name}/Dockerfile
+      target: development
+    container_name: {project-name}-{app-name}-dev
     restart: unless-stopped
     volumes:
       # Mount source code for hot-reload
-      - ./apps/fish/src:/app/apps/fish/src:cached
-      # Mount config files
-      - ./apps/fish/tsconfig.json:/app/apps/fish/tsconfig.json:ro
-      - ./apps/fish/package.json:/app/apps/fish/package.json:ro
-      # Optional: mount test files if running tests in container
-      # - ./apps/fish/vitest.config.ts:/app/apps/fish/vitest.config.ts:ro
+      - ./apps/{app-name}/src:/app/apps/{app-name}/src:cached
+      # Mount config files (read-only)
+      - ./apps/{app-name}/tsconfig.json:/app/apps/{app-name}/tsconfig.json:ro
+      - ./apps/{app-name}/package.json:/app/apps/{app-name}/package.json:ro
     environment:
       NODE_ENV: development
-      # Database connection (shared service)
-      DATABASE_URL: postgresql://fuse:fuse_dev_password@db:5432/fuse
-      # Load app-specific vars from file
+      DATABASE_URL: postgresql://user:password@db:5432/dbname
     env_file:
-      - apps/fish/.env.docker
+      - apps/{app-name}/.env.docker
     depends_on:
       db:
         condition: service_healthy
     networks:
-      - fish-network
+      - {app-name}-network
       - shared-services
     # Uncomment if app exposes HTTP port
     # ports:
     #   - "3000:3000"
 
   # =============================================================================
-  # Shared Service: PostgreSQL Database
+  # Shared Service: Database
   # =============================================================================
   db:
     image: postgres:16-alpine
-    container_name: fuse-db
+    container_name: {project-name}-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: fuse                 # Shared database for all apps
-      POSTGRES_USER: fuse
-      POSTGRES_PASSWORD: fuse_dev_password
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      POSTGRES_DB: {database-name}
+      POSTGRES_USER: {database-user}
+      POSTGRES_PASSWORD: {database-password}
     volumes:
-      # Persist database data
       - postgres-data:/var/lib/postgresql/data
-      # Optional: init scripts for schema setup
-      # - ./database/init:/docker-entrypoint-initdb.d:ro
     ports:
-      - "5432:5432"                     # Expose for local tools (psql, GUI clients)
+      - "5432:5432"
     networks:
       - shared-services
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fuse -d fuse"]
+      test: ["CMD-SHELL", "pg_isready -U {database-user} -d {database-name}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
-
-  # =============================================================================
-  # Future App Example (commented out)
-  # =============================================================================
-  # future-app-dev:
-  #   build:
-  #     context: .
-  #     dockerfile: apps/future-app/Dockerfile
-  #     target: development
-  #   container_name: fuse-future-app-dev
-  #   volumes:
-  #     - ./apps/future-app/src:/app/apps/future-app/src:cached
-  #   environment:
-  #     DATABASE_URL: postgresql://fuse:fuse_dev_password@db:5432/fuse
-  #   env_file:
-  #     - apps/future-app/.env.docker
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   networks:
-  #     - future-app-network
-  #     - shared-services
 
 # =============================================================================
 # Networks: Isolated per-app + shared services
@@ -372,91 +507,126 @@ services:
 networks:
   shared-services:
     driver: bridge
-    name: fuse-shared-services
 
-  fish-network:
+  {app-name}-network:
     driver: bridge
-    name: fuse-fish-network
-
-  # future-app-network:
-  #   driver: bridge
-  #   name: fuse-future-app-network
 
 # =============================================================================
 # Volumes: Persistent data storage
 # =============================================================================
 volumes:
   postgres-data:
-    name: fuse-postgres-data
 ```
 
 ### Production: `docker-compose.prod.yml`
 
-Use this for production validation and deployment.
+#### Single Application
 
 ```yaml
 version: '3.9'
 
 services:
-  # =============================================================================
-  # Application: fish (production build)
-  # =============================================================================
-  fish:
+  app:
     build:
       context: .
-      dockerfile: apps/fish/Dockerfile
-      target: production                # Use production stage
-    image: fuse-fish:latest
-    container_name: fuse-fish
+      dockerfile: Dockerfile
+      target: production
+    image: {project-name}-app:latest
+    container_name: {project-name}-app
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://fuse:${POSTGRES_PASSWORD}@db:5432/fuse
+      DATABASE_URL: postgresql://user:${DB_PASSWORD}@db:5432/dbname
     env_file:
-      - apps/fish/.env.docker
+      - .env.docker
     depends_on:
       db:
         condition: service_healthy
     networks:
-      - fish-network
+      - app-network
+    # Uncomment for HTTP apps
+    # ports:
+    #   - "3000:3000"
+
+  db:
+    image: postgres:16-alpine
+    container_name: {project-name}-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: {database-name}
+      POSTGRES_USER: {database-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {database-user} -d {database-name}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+```
+
+#### Monorepo with Multiple Applications
+
+```yaml
+version: '3.9'
+
+services:
+  {app-name}:
+    build:
+      context: .
+      dockerfile: apps/{app-name}/Dockerfile
+      target: production
+    image: {project-name}-{app-name}:latest
+    container_name: {project-name}-{app-name}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://user:${DB_PASSWORD}@db:5432/dbname
+    env_file:
+      - apps/{app-name}/.env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - {app-name}-network
       - shared-services
     # Uncomment for HTTP apps
     # ports:
     #   - "3000:3000"
 
-  # =============================================================================
-  # Shared Service: PostgreSQL Database
-  # =============================================================================
   db:
     image: postgres:16-alpine
-    container_name: fuse-db
+    container_name: {project-name}-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: fuse
-      POSTGRES_USER: fuse
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # From .env.docker
+      POSTGRES_DB: {database-name}
+      POSTGRES_USER: {database-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - shared-services
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fuse -d fuse"]
+      test: ["CMD-SHELL", "pg_isready -U {database-user} -d {database-name}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-# =============================================================================
-# Networks
-# =============================================================================
 networks:
   shared-services:
     driver: bridge
-  fish-network:
+  {app-name}-network:
     driver: bridge
 
-# =============================================================================
-# Volumes
-# =============================================================================
 volumes:
   postgres-data:
 ```
@@ -473,14 +643,14 @@ Template for shared infrastructure configuration.
 # Copy this file to .env.docker and customize
 # =============================================================================
 
-# PostgreSQL Database
-POSTGRES_PASSWORD=changeme_in_production
+# Database
+DB_PASSWORD=changeme_in_production
 
 # Add other shared service configs here
 # REDIS_PASSWORD=changeme
 ```
 
-### App-Level: `apps/{app-name}/.env.docker.example`
+### App-Level: `apps/{app-name}/.env.docker.example` (Monorepo)
 
 Template for app-specific configuration.
 
@@ -491,12 +661,31 @@ Template for app-specific configuration.
 # =============================================================================
 
 # External API Configuration
-OBJEKTBANKEN_API_KEY=your_api_key_here
-OBJEKTBANKEN_API_BASEURL=https://api.objektbanken.com
+EXTERNAL_API_KEY=your_api_key_here
+EXTERNAL_API_URL=https://api.example.com
 
 # App-specific settings
-# LOG_LEVEL=info
+LOG_LEVEL=info
 # FEATURE_FLAG_XYZ=true
+```
+
+### Single App: `.env.docker.example`
+
+```bash
+# =============================================================================
+# Application - Docker Environment Variables
+# Copy this file to .env.docker and customize
+# =============================================================================
+
+# Database
+DB_PASSWORD=changeme_in_production
+
+# External API Configuration
+EXTERNAL_API_KEY=your_api_key_here
+EXTERNAL_API_URL=https://api.example.com
+
+# App-specific settings
+LOG_LEVEL=info
 ```
 
 ### Using Environment Variables
@@ -506,11 +695,11 @@ OBJEKTBANKEN_API_BASEURL=https://api.objektbanken.com
 docker compose up
 
 # Production (with overrides)
-POSTGRES_PASSWORD=secure_prod_password \
+DB_PASSWORD=secure_prod_password \
   docker compose -f docker-compose.prod.yml up
 
 # Or use .env file for production secrets (not committed)
-echo "POSTGRES_PASSWORD=secure_prod_password" > .env.docker
+echo "DB_PASSWORD=secure_prod_password" > .env.docker
 docker compose -f docker-compose.prod.yml up
 ```
 
@@ -525,18 +714,18 @@ docker compose up
 # Start in background
 docker compose up -d
 
-# Start specific app + dependencies
-docker compose up fish-dev db
+# Start specific app + dependencies (monorepo)
+docker compose up {app-name}-dev db
 
 # Rebuild after package.json changes
-docker compose up --build fish-dev
+docker compose up --build {app-name}-dev
 
 # View logs
-docker compose logs -f fish-dev
+docker compose logs -f {app-name}-dev
 
 # Execute commands in running container
-docker compose exec fish-dev pnpm --filter fish test
-docker compose exec fish-dev sh  # Open shell
+docker compose exec {app-name}-dev pnpm test
+docker compose exec {app-name}-dev sh  # Open shell
 
 # Stop all services
 docker compose down
@@ -555,23 +744,23 @@ docker compose -f docker-compose.prod.yml up --build
 docker compose -f docker-compose.prod.yml up -d
 
 # Check logs
-docker compose -f docker-compose.prod.yml logs -f fish
+docker compose -f docker-compose.prod.yml logs -f {app-name}
 
 # Stop
 docker compose -f docker-compose.prod.yml down
 ```
 
-### Database Management
+### Database Management (PostgreSQL Example)
 
 ```bash
 # Connect to PostgreSQL with psql
-docker compose exec db psql -U fuse -d fuse
+docker compose exec db psql -U {database-user} -d {database-name}
 
 # Backup database
-docker compose exec db pg_dump -U fuse fuse > backup.sql
+docker compose exec db pg_dump -U {database-user} {database-name} > backup.sql
 
 # Restore database
-docker compose exec -T db psql -U fuse -d fuse < backup.sql
+docker compose exec -T db psql -U {database-user} -d {database-name} < backup.sql
 
 # View database logs
 docker compose logs db
@@ -590,158 +779,49 @@ docker compose down -v
 docker system prune -a --volumes
 ```
 
-## Adding a New App to the Monorepo
-
-Follow these steps to dockerize a new application:
-
-### 1. Create Dockerfile
-
-Copy and customize the template:
-
-```bash
-# Create Dockerfile for new app
-cp apps/fish/Dockerfile apps/new-app/Dockerfile
-
-# Edit and replace {app-name} with 'new-app'
-nano apps/new-app/Dockerfile
-```
-
-### 2. Create .dockerignore
-
-```bash
-cp apps/fish/.dockerignore apps/new-app/.dockerignore
-```
-
-### 3. Create Environment Template
-
-```bash
-# Create app-specific env template
-cat > apps/new-app/.env.docker.example << 'EOF'
-# New App - Docker Environment Variables
-# Copy to .env.docker and customize
-
-# Add your app-specific variables here
-API_KEY=changeme
-EOF
-
-# Create actual env file
-cp apps/new-app/.env.docker.example apps/new-app/.env.docker
-
-# Add to .gitignore
-echo "apps/new-app/.env.docker" >> .gitignore
-```
-
-### 4. Add to docker-compose.yml
-
-```yaml
-services:
-  # ... existing services ...
-
-  new-app-dev:
-    build:
-      context: .
-      dockerfile: apps/new-app/Dockerfile
-      target: development
-    container_name: fuse-new-app-dev
-    restart: unless-stopped
-    volumes:
-      - ./apps/new-app/src:/app/apps/new-app/src:cached
-      - ./apps/new-app/tsconfig.json:/app/apps/new-app/tsconfig.json:ro
-      - ./apps/new-app/package.json:/app/apps/new-app/package.json:ro
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://fuse:fuse_dev_password@db:5432/fuse
-    env_file:
-      - apps/new-app/.env.docker
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - new-app-network
-      - shared-services
-    # ports:
-    #   - "3001:3000"  # Adjust port to avoid conflicts
-
-networks:
-  # ... existing networks ...
-  new-app-network:
-    driver: bridge
-    name: fuse-new-app-network
-```
-
-### 5. Add to docker-compose.prod.yml
-
-```yaml
-services:
-  new-app:
-    build:
-      context: .
-      dockerfile: apps/new-app/Dockerfile
-      target: production
-    image: fuse-new-app:latest
-    container_name: fuse-new-app
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://fuse:${POSTGRES_PASSWORD}@db:5432/fuse
-    env_file:
-      - apps/new-app/.env.docker
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - new-app-network
-      - shared-services
-
-networks:
-  new-app-network:
-    driver: bridge
-```
-
-### 6. Test the Setup
-
-```bash
-# Test development build
-docker compose up new-app-dev --build
-
-# Test production build
-docker compose -f docker-compose.prod.yml up new-app --build
-
-# Run both apps simultaneously
-docker compose up fish-dev new-app-dev
-```
-
 ## Network Architecture
 
-### Isolated Networks with Shared Services
+### Simple Single-App Network
+
+```
+┌─────────────────────────┐
+│     app-network         │
+│                         │
+│  ┌────────┐  ┌────────┐│
+│  │  app   │  │   db   ││
+│  └────────┘  └────────┘│
+│                         │
+└─────────────────────────┘
+```
+
+### Monorepo: Isolated Networks with Shared Services
 
 Each app runs in its own isolated network but can access shared services:
 
 ```
 ┌─────────────────────────────────────────────────┐
-│              fuse-shared-services               │
+│              shared-services                    │
 │                                                 │
 │  ┌──────────────────────────────────────────┐  │
-│  │         PostgreSQL Database               │  │
-│  │         (fuse-db)                         │  │
+│  │         Database / Redis / etc.          │  │
 │  └──────────────────────────────────────────┘  │
 │                                                 │
 └────────┬─────────────────────────────┬──────────┘
          │                             │
          │                             │
 ┌────────┴─────────┐         ┌────────┴─────────┐
-│  fuse-fish-network│         │ fuse-app2-network│
-│                   │         │                   │
-│  ┌─────────────┐ │         │  ┌─────────────┐ │
-│  │  fish-dev   │ │         │  │  app2-dev   │ │
-│  └─────────────┘ │         │  └─────────────┘ │
-│                   │         │                   │
-└───────────────────┘         └───────────────────┘
+│  app1-network    │         │  app2-network    │
+│                  │         │                  │
+│  ┌────────────┐  │         │  ┌────────────┐  │
+│  │   app1     │  │         │  │   app2     │  │
+│  └────────────┘  │         │  └────────────┘  │
+│                  │         │                  │
+└──────────────────┘         └──────────────────┘
 ```
 
 **Key Points:**
 - Apps cannot directly communicate with each other (isolated)
-- All apps can access shared database
+- All apps can access shared services (database, cache, etc.)
 - Easy to add inter-app communication later by connecting networks
 - Security: minimal network exposure
 
@@ -751,15 +831,15 @@ To allow two apps to communicate:
 
 ```yaml
 services:
-  fish-dev:
+  app1-dev:
     networks:
-      - fish-network
+      - app1-network
       - shared-services
       - inter-app-communication  # Add this
 
-  new-app-dev:
+  app2-dev:
     networks:
-      - new-app-network
+      - app2-network
       - shared-services
       - inter-app-communication  # Add this
 
@@ -775,13 +855,13 @@ networks:
 1. **Source code (cached)**: Hot-reload, instant feedback
    ```yaml
    volumes:
-     - ./apps/fish/src:/app/apps/fish/src:cached
+     - ./src:/app/src:cached
    ```
 
 2. **Config files (read-only)**: Prevent accidental changes
    ```yaml
    volumes:
-     - ./apps/fish/tsconfig.json:/app/apps/fish/tsconfig.json:ro
+     - ./tsconfig.json:/app/tsconfig.json:ro
    ```
 
 3. **Node modules (not mounted)**: Keep container's installation
@@ -795,10 +875,10 @@ On macOS and Windows, use `:cached` for better performance:
 ```yaml
 volumes:
   # Good: cached delegated mount
-  - ./apps/fish/src:/app/apps/fish/src:cached
+  - ./src:/app/src:cached
 
   # Avoid: not cached (slow on macOS/Windows)
-  - ./apps/fish/src:/app/apps/fish/src
+  - ./src:/app/src
 ```
 
 ## Troubleshooting
@@ -810,13 +890,13 @@ volumes:
 **Solution**:
 ```bash
 # Rebuild without cache
-docker compose build --no-cache fish-dev
+docker compose build --no-cache {app-name}-dev
 
 # Check if package.json changed
-docker compose up --build fish-dev
+docker compose up --build {app-name}-dev
 
 # Verify path aliases in tsconfig.json
-docker compose exec fish-dev cat apps/fish/tsconfig.json
+docker compose exec {app-name}-dev cat tsconfig.json
 ```
 
 ### Hot Reload Not Working
@@ -826,18 +906,18 @@ docker compose exec fish-dev cat apps/fish/tsconfig.json
 **Solution**:
 ```bash
 # Check volume mounts
-docker compose exec fish-dev ls -la /app/apps/fish/src
+docker compose exec {app-name}-dev ls -la /app/src
 
-# Verify tsx is running in watch mode
-docker compose logs fish-dev | grep tsx
+# Verify watch mode is running
+docker compose logs {app-name}-dev
 
 # Restart the service
-docker compose restart fish-dev
+docker compose restart {app-name}-dev
 ```
 
 ### Database Connection Refused
 
-**Problem**: App can't connect to PostgreSQL.
+**Problem**: App can't connect to database.
 
 **Solution**:
 ```bash
@@ -848,11 +928,11 @@ docker compose ps db
 docker compose logs db
 
 # Verify connection string
-docker compose exec fish-dev env | grep DATABASE_URL
+docker compose exec {app-name}-dev env | grep DATABASE_URL
 
 # Manually test connection
-docker compose exec fish-dev ping db
-docker compose exec fish-dev nc -zv db 5432
+docker compose exec {app-name}-dev ping db
+docker compose exec {app-name}-dev nc -zv db 5432
 ```
 
 ### Container Exits Immediately
@@ -862,13 +942,13 @@ docker compose exec fish-dev nc -zv db 5432
 **Solution**:
 ```bash
 # Check logs for errors
-docker compose logs fish-dev
+docker compose logs {app-name}-dev
 
 # Run with interactive shell to debug
-docker compose run --rm fish-dev sh
+docker compose run --rm {app-name}-dev sh
 
 # Check if environment variables are set
-docker compose exec fish-dev env
+docker compose exec {app-name}-dev env
 ```
 
 ### Port Already in Use
@@ -898,7 +978,7 @@ ports:
 **Solution**:
 ```dockerfile
 # Ensure proper ownership
-COPY --chown=appuser:appuser --from=build /app/apps/fish/dist ./apps/fish/dist
+COPY --chown=appuser:appuser --from=build /app/dist ./dist
 
 # Create necessary directories with correct permissions
 RUN mkdir -p /app/data && chown appuser:appuser /app/data
@@ -914,7 +994,7 @@ RUN mkdir -p /app/data && chown appuser:appuser /app/data
 docker compose down -v
 
 # Or remove specific volume
-docker volume rm fuse-postgres-data
+docker volume rm {project-name}-postgres-data
 
 # List all volumes
 docker volume ls
@@ -960,7 +1040,7 @@ networks:
 Use `:ro` for files that shouldn't change:
 ```yaml
 volumes:
-  - ./apps/fish/package.json:/app/apps/fish/package.json:ro
+  - ./package.json:/app/package.json:ro
 ```
 
 ### 5. Minimal Base Images
@@ -1000,21 +1080,20 @@ jobs:
       - name: Set up environment files
         run: |
           cp .env.docker.example .env.docker
-          cp apps/fish/.env.docker.example apps/fish/.env.docker
           # Add secrets from GitHub Secrets
-          echo "OBJEKTBANKEN_API_KEY=${{ secrets.OBJEKTBANKEN_API_KEY }}" >> apps/fish/.env.docker
+          echo "EXTERNAL_API_KEY=${{ secrets.EXTERNAL_API_KEY }}" >> .env.docker
 
       - name: Build development images
-        run: docker compose build fish-dev
+        run: docker compose build
 
       - name: Run tests in container
-        run: docker compose run --rm fish-dev pnpm --filter fish test
+        run: docker compose run --rm app-dev pnpm test
 
       - name: Build production image
-        run: docker compose -f docker-compose.prod.yml build fish
+        run: docker compose -f docker-compose.prod.yml build
 
       - name: Test production image
-        run: docker compose -f docker-compose.prod.yml up -d fish
+        run: docker compose -f docker-compose.prod.yml up -d
 
   deploy:
     needs: test
@@ -1025,31 +1104,60 @@ jobs:
 
       - name: Build and push to registry
         run: |
-          docker compose -f docker-compose.prod.yml build fish
+          docker compose -f docker-compose.prod.yml build
           # Add steps to tag and push to your registry
 ```
 
-## Checklist: Dockerizing a New App
+## Database Options
 
-Use this checklist when adding a new app to the monorepo:
+While examples in this guide use PostgreSQL, Docker supports any database:
 
-- [ ] Create `Dockerfile` from template
-- [ ] Create `.dockerignore`
-- [ ] Replace all `{app-name}` placeholders with actual app name
-- [ ] Create `.env.docker.example` with required variables
-- [ ] Create `.env.docker` and add to `.gitignore`
-- [ ] Add service to `docker-compose.yml` (development)
-- [ ] Add service to `docker-compose.prod.yml` (production)
-- [ ] Create isolated network for the app
-- [ ] Adjust ports if app exposes HTTP (avoid conflicts)
-- [ ] Test development build: `docker compose up {app}-dev --build`
-- [ ] Verify hot-reload works: change source file, check logs
-- [ ] Test production build: `docker compose -f docker-compose.prod.yml up {app} --build`
-- [ ] Test database connectivity from app
-- [ ] Verify non-root user in production: `docker compose -f docker-compose.prod.yml exec {app} id`
-- [ ] Check final image size: `docker images fuse-{app}`
-- [ ] Document app-specific Docker notes in app's README (if any)
-- [ ] Update CI/CD workflows if needed
+### PostgreSQL
+```yaml
+db:
+  image: postgres:16-alpine
+  environment:
+    POSTGRES_DB: {database-name}
+    POSTGRES_USER: {database-user}
+    POSTGRES_PASSWORD: ${DB_PASSWORD}
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U {database-user}"]
+```
+
+### MySQL
+```yaml
+db:
+  image: mysql:8.0
+  environment:
+    MYSQL_DATABASE: {database-name}
+    MYSQL_USER: {database-user}
+    MYSQL_PASSWORD: ${DB_PASSWORD}
+    MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+  healthcheck:
+    test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+```
+
+### MongoDB
+```yaml
+db:
+  image: mongo:7
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: {database-user}
+    MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+  healthcheck:
+    test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+```
+
+### Redis
+```yaml
+cache:
+  image: redis:7-alpine
+  environment:
+    REDIS_PASSWORD: ${REDIS_PASSWORD}
+  command: redis-server --requirepass ${REDIS_PASSWORD}
+  healthcheck:
+    test: ["CMD", "redis-cli", "ping"]
+```
 
 ## Performance Tips
 
@@ -1107,25 +1215,45 @@ FROM node:25-slim AS production
 COPY --from=build /app/dist ./dist
 ```
 
+## Checklist: Dockerizing an Application
+
+Use this checklist when setting up Docker:
+
+- [ ] Create `Dockerfile` from template (single-app or monorepo)
+- [ ] Create `.dockerignore`
+- [ ] Replace all `{placeholders}` with actual names
+- [ ] Create `.env.docker.example` with required variables
+- [ ] Create `.env.docker` and add to `.gitignore`
+- [ ] Create `docker-compose.yml` (development)
+- [ ] Create `docker-compose.prod.yml` (production)
+- [ ] Configure networks (isolated if monorepo, simple if single-app)
+- [ ] Adjust ports if app exposes HTTP (avoid conflicts)
+- [ ] Test development build: `docker compose up --build`
+- [ ] Verify hot-reload works: change source file, check logs
+- [ ] Test production build: `docker compose -f docker-compose.prod.yml up --build`
+- [ ] Test database connectivity from app
+- [ ] Verify non-root user in production: `docker compose -f docker-compose.prod.yml exec {app} id`
+- [ ] Check final image size: `docker images`
+- [ ] Document app-specific Docker notes if needed
+- [ ] Update CI/CD workflows if applicable
+
 ## Additional Resources
 
 - [Docker Compose Specification](https://docs.docker.com/compose/compose-file/)
 - [Docker Multi-Stage Builds](https://docs.docker.com/build/building/multi-stage/)
-- [pnpm Docker Guide](https://pnpm.io/docker)
 - [Node.js Docker Best Practices](https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md)
-- [PostgreSQL Docker Hub](https://hub.docker.com/_/postgres)
 
-## Notes for AI/Claude Code
+## Notes for AI Assistants
 
-When dockerizing an application in this monorepo:
+When dockerizing an application:
 
-1. **Always use the templates** - Consistency is critical
-2. **Replace `{app-name}` everywhere** - Dockerfile, docker-compose.yml, networks, volumes
+1. **Use the templates** - Consistency is critical
+2. **Replace all placeholders** - `{project-name}`, `{app-name}`, `{database-name}`, etc.
 3. **Test both modes** - Development (hot-reload) and Production (validation)
 4. **Verify hot-reload** - Make a code change and check it reflects immediately
-5. **Check networks** - Each app should be isolated with own network
-6. **Validate database access** - Every app should connect to shared DB successfully
-7. **Document deviations** - If template doesn't work, document why and update this guide
+5. **Configure networks appropriately** - Isolated for monorepo, simple for single-app
+6. **Validate database access** - Ensure connectivity works
+7. **Document deviations** - If template doesn't work, document why
 8. **Keep it simple** - Don't add complexity unless required
 9. **Security first** - Non-root in production, secrets in env files, minimal images
 
