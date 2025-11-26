@@ -228,7 +228,7 @@ You must not:
 
 ## 10.1 Additional Instruction Files
 
-The following category-specific instruction files are available in `.agents/`:
+The following category-specific instruction files are available in `.agents/` for use by Claude Code:
 
 ### When Writing Code
 
@@ -260,16 +260,16 @@ The following category-specific instruction files are available in `.agents/`:
 
 All instruction files are intended for Claude Code only and provide general best practices applicable to any new project when Claude Code is used as the assistant.
 
-## 10.2 How the Assistant Should Handle Multiple Instruction Layers
+## 10.2 How Claude Code Should Handle Multiple Instruction Layers
 
 1. **Global General Rules (this file)**
-   Always apply these unless the user explicitly overrides them.
+   Claude Code should always apply these unless the user explicitly overrides them.
 
 2. **Category-Specific Instruction Files**
-   If the user's request falls within a category (architecture, research, testing), apply that category's instructions.
+   If the user's request falls within a category (architecture, research, testing), Claude Code should apply that category's instructions.
 
 3. **Project-Specific Instruction Files**
-   Only apply these if the user states the project context or references a project.
+   Claude Code should only apply these if the user states the project context or references a project.
 
 4. **User Message Overrides Everything**
    If there is a conflict, the user's explicit instruction always wins.
