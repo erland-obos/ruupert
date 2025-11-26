@@ -1,8 +1,6 @@
 # Research Instructions
 
-This document defines general best practices and workflows for conducting research during the early and ongoing phases
-of software development projects. It covers how to gather information, evaluate technologies, investigate APIs, validate
-findings, document results, and communicate with stakeholders.
+This document defines how **Claude Code** should conduct research during the early and ongoing phases of software development projects. It covers how to gather information, evaluate technologies, investigate APIs, validate findings, document results, and communicate with stakeholders.
 
 > **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should conduct research when assisting with any project. They are not designed or supported for use with other AI agents or models.
 
