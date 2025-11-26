@@ -1,6 +1,7 @@
 > [!IMPORTANT]
 > This repository is intended to be used as a set of Claude Code instruction files. It is not a standalone application.
-> The instruction files in `.claude` (including all subfolders) are only supported for Claude Code and should not be used to configure other AI agents or models.
+> The instruction files in `.claude` (including all subfolders) are only supported for Claude Code and should not be
+> used to configure other AI agents or models.
 
 # Claude Code Instruction Repository
 
@@ -28,7 +29,7 @@ cp .claude/typescript-node/CLAUDE.md /path/to/your/project/CLAUDE.md
 Clone this repository to start a fresh project with Claude Code instructions pre-configured:
 
 ```bash
-git clone https://github.com/your-org/ai-instructions.git my-project
+git clone https://github.com/erland-obos/ruupert.git my-project
 cd my-project
 rm -rf .git       # Remove existing git history
 git init          # Initialize new git repository
@@ -53,7 +54,8 @@ Load CLAUDE.md as the primary instruction file, and also load any referenced ins
 Follow CLAUDE.md unless conflicts arise, then ask for clarification.
 ```
 
-**Note:** These example prompts are specifically for Claude Code. The instruction files in `.claude` are not supported by other AI agents or models.
+**Note:** These example prompts are specifically for Claude Code. The instruction files in `.claude` are not supported
+by other AI agents or models.
 
 ## Project-Specific Overrides
 
@@ -158,7 +160,8 @@ These instructions guide Claude Code to:
 
 Claude Code applies instructions in layers, from most general to most specific:
 
-1. **Claude Code control file** (.claude/typescript-node/CLAUDE.md): Primary instructions for TypeScript/Node.js projects
+1. **Claude Code control file** (.claude/typescript-node/CLAUDE.md): Primary instructions for TypeScript/Node.js
+   projects
 2. **Category-specific** (.claude/common): Apply when relevant (research, testing)
 3. **Stack-specific** (.claude/typescript-node/instructions): Apply for TypeScript/Node.js projects
 4. **User directives**: Override everything when specified
