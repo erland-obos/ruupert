@@ -1,10 +1,10 @@
-# CLAUDE.md
+# AGENT.md
 
-Instruction file for Claude Code
+Instruction file for AI agents
 
 ## Purpose
 
-Provide a stable, project-scoped control file that Claude Code can load and apply as its operating instructions.
+Provide a stable, project-scoped control file that AI agents can load and apply as their operating instructions.
 This file defines how the agent should behave when reading the project, modifying code, generating files, performing
 refactors, and interacting with the repository.
 
