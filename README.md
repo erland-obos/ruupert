@@ -49,6 +49,17 @@ Load CLAUDE.md as the primary instruction file, and also load any referenced ins
 Follow CLAUDE.md unless conflicts arise, then ask for clarification.
 ```
 
+## Project-Specific Overrides
+
+Projects may define custom rules that extend or override the base instructions in `.agents`. These are documented in `.agents/PROJECT-OVERRIDES.md`.
+
+This file allows projects to:
+- Adapt instructions to specific architectural constraints
+- Override base rules when justified by project requirements
+- Document project-specific conventions and exceptions
+
+Overrides are intentionally minimal and only introduced when actual development constraints require them. See `.agents/PROJECT-OVERRIDES.md` for guidance on when and how to define project-specific rules.
+
 ## What's Inside
 
 ### Core Agent Control
