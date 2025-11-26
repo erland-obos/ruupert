@@ -88,7 +88,7 @@ Follow CLAUDE.md unless conflicts arise, then ask for clarification.
 
 - **Accuracy over assumptions**: Request clarification when requirements are unclear
 - **Safety first**: Minimal, necessary changes with explicit user approval
-- **Project awareness**: Use existing code patterns as source of truth
+- **Project awareness**: Use existing code patterns as the source of truth
 - **Test-driven development**: Write tests first, maintain high coverage
 - **Clear documentation**: Structured, actionable guidance
 
