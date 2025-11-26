@@ -47,7 +47,7 @@
 **vitest.config.ts**:
 
 ```typescript
-import { defineConfig } from 'vitest/config';
+import {defineConfig} from 'vitest/config';
 import * as path from 'node:path';
 
 export default defineConfig({
@@ -172,8 +172,8 @@ Test files should mirror the structure and naming of implementation files:
 ### Test Structure Template
 
 ```typescript
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { functionToTest } from './module';
+import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
+import {functionToTest} from './module';
 
 describe('ModuleName', () => {
   describe('functionToTest', () => {
@@ -187,8 +187,8 @@ describe('ModuleName', () => {
 
     it('should do expected behavior when given valid input', async () => {
       // Arrange - Set up test data and mocks
-      const input = { value: 'test' };
-      const mockDependency = vi.fn().mockResolvedValue({ result: 'success' });
+      const input = {value: 'test'};
+      const mockDependency = vi.fn().mockResolvedValue({result: 'success'});
 
       // Act - Execute the function under test
       const result = await functionToTest(input);
@@ -233,9 +233,9 @@ xdg-open coverage/index.html  # Linux
 ### Node.js Built-in Modules
 
 ```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {describe, it, expect, vi, beforeEach} from 'vitest';
 import * as fs from 'node:fs/promises';
-import { saveData } from './saveData';
+import {saveData} from './saveData';
 
 vi.mock('node:fs/promises');
 
@@ -247,7 +247,7 @@ describe('saveData', () => {
   it('should write file successfully', async () => {
     vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
-    const result = await saveData({ id: 1, name: 'test' });
+    const result = await saveData({id: 1, name: 'test'});
 
     expect(fs.writeFile).toHaveBeenCalledWith(
       expect.stringContaining('.json'),
@@ -268,7 +268,7 @@ describe('fetchData', () => {
   });
 
   it('should fetch data successfully', async () => {
-    const mockResponse = { data: [{ id: 1, name: 'Test' }] };
+    const mockResponse = {data: [{id: 1, name: 'Test'}]};
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -281,7 +281,7 @@ describe('fetchData', () => {
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('api.'),
       expect.objectContaining({
-        headers: { 'Authorization': 'Bearer test-api-key' },
+        headers: {'Authorization': 'Bearer test-api-key'},
       })
     );
   });
@@ -301,7 +301,7 @@ describe('fetchData', () => {
 
 ```typescript
 describe('fetchData', () => {
-  const originalEnv = { API_KEY: process.env.API_KEY };
+  const originalEnv = {API_KEY: process.env.API_KEY};
 
   beforeEach(() => {
     process.env.API_KEY = 'test-api-key';
@@ -396,8 +396,8 @@ it('should call helper function', () => {
 ```typescript
 // Good: Testing observable behavior
 it('should return formatted data', () => {
-  const result = doSomething({ input: 'raw' });
-  expect(result).toEqual({ output: 'formatted' });
+  const result = doSomething({input: 'raw'});
+  expect(result).toEqual({output: 'formatted'});
 });
 ```
 
@@ -418,11 +418,11 @@ it('should fetch real data', async () => {
 it('should fetch data', async () => {
   global.fetch = vi.fn().mockResolvedValue({
     ok: true,
-    json: async () => ({ data: 'mock' }),
+    json: async () => ({data: 'mock'}),
   });
 
   const data = await fetchData();
-  expect(data).toEqual({ data: 'mock' });
+  expect(data).toEqual({data: 'mock'});
 });
 ```
 
@@ -471,7 +471,7 @@ it('should also start with zero', () => {
 ### Integration Test Setup
 
 ```typescript
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import {describe, it, expect, beforeAll, afterAll} from 'vitest';
 
 describe('Pipeline Integration', () => {
   beforeAll(async () => {
@@ -499,14 +499,19 @@ describe('Pipeline Integration', () => {
 ```typescript
 // Test structure
 describe('Group', () => {
-  it('should do something', () => {});
+  it('should do something', () => {
+  });
 });
 
 // Lifecycle hooks
-beforeEach(() => {});  // Runs before each test
-afterEach(() => {});   // Runs after each test
-beforeAll(() => {});   // Runs once before all tests
-afterAll(() => {});    // Runs once after all tests
+beforeEach(() => {
+});  // Runs before each test
+afterEach(() => {
+});   // Runs after each test
+beforeAll(() => {
+});   // Runs once before all tests
+afterAll(() => {
+});    // Runs once after all tests
 
 // Assertions
 expect(value).toBe(expected);
@@ -582,7 +587,7 @@ When reviewing pull requests, verify:
 ### Integration with Broader Code Review
 
 For comprehensive code review guidelines beyond testing, see:
-> **[Coding Instructions](.agents/typescript-node/instructions/coding.md)** - Section: Code Quality → Code Review
+> **[Coding Instructions](coding.md)** - Section: Code Quality → Code Review
 > Checklist
 
 ## Summary

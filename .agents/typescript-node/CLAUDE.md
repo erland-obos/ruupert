@@ -1,10 +1,10 @@
-# AGENT.md
+# CLAUDE.md
 
-Instruction file for AI agents
+Instruction file for Claude Code
 
 ## Purpose
 
-Provide a stable, project-scoped control file that AI agents can load and apply as their operating instructions.
+Provide a stable, project-scoped control file that Claude Code can load and apply as its operating instructions.
 This file defines how the agent should behave when reading the project, modifying code, generating files, performing
 refactors, and interacting with the repository.
 
@@ -230,28 +230,28 @@ The following category-specific instruction files are available in `.agents/`:
 
 ### When Writing Code
 
-- **`.agents/typescript-node/instructions/coding.md`**
+- [.agents/typescript-node/instructions/coding.md](instructions/coding.md)
     - Apply when writing, modifying, or reviewing TypeScript/Node.js code
     - Contains type safety guidelines, error handling patterns, code organization
     - Defines naming conventions, testing approach, and security best practices
 
 ### When Conducting Research
 
-- **`.agents/common/instructions/research.md`**
+- [.agents/common/instructions/research.md](../common/instructions/research.md)
     - Apply when researching technologies, APIs, databases, or architectures
     - Contains research methodology, source evaluation, documentation standards
     - Defines templates for API research, technology evaluation, and decision rationale
 
 ### When Writing Tests
 
-- **`.agents/typescript-node/instructions/testing.md`**
+- [.agents/typescript-node/instructions/testing.md](instructions/testing.md)
     - Apply when writing tests or implementing TDD workflow
     - Contains comprehensive testing guidelines, coverage requirements
     - Defines mocking patterns, test structure, and CI/CD integration
 
 ### When Setting Up Docker
 
-- **`.agents/typescript-node/instructions/docker.md`**
+- [.agents/typescript-node/instructions/docker.md](instructions/docker.md)
     - Apply when containerizing applications or setting up Docker environments
     - Contains Dockerfile templates, Docker Compose configurations
     - Defines development vs production patterns, networking, and troubleshooting

@@ -124,7 +124,7 @@ src/
 │   └── {feature}/
 │       ├── types/               # TypeScript interfaces
 │       ├── {feature}.ts         # Implementation
-│       └── {feature}.test.ts    # Tests (see testing-instructions.md)
+│       └── {feature}.test.ts    # Tests (see testing.md)
 ├── utils/                        # Shared utilities
 │   ├── logger.ts
 │   └── config.ts
@@ -140,7 +140,7 @@ src/
 - Separate concerns (errors, services, utils, models)
 
 > **Testing**: For comprehensive testing organization, colocation patterns, and test file structure,
-> see [Testing Instructions](.agents/typescript-node/instructions/testing.md).
+> see [testing.md](testing.md).
 
 #### Dependency Injection
 
@@ -158,7 +158,7 @@ src/
 
 All testing guidance has been consolidated in a dedicated document:
 
-> **[Testing Instructions](.agents/typescript-node/instructions/testing.md)**
+> **[Testing Instructions](testing.md)**
 
 **Quick Reference**:
 
@@ -302,7 +302,7 @@ type CreateUserInput = z.infer<typeof createUserSchema>;
 
 - [ ] All functions have explicit return types
 - [ ] Error handling is comprehensive
-- [ ] Tests cover new functionality (see [testing-instructions.md](.agents/typescript-node/instructions/testing.md) for
+- [ ] Tests cover new functionality (see [testing.md](testing.md) for
   testing guidelines)
 - [ ] No hardcoded values (use constants/config)
 - [ ] Logging is appropriate and structured
@@ -348,7 +348,7 @@ async function fetchUser(
     - Consider edge cases
 
 2. **Write Tests First**
-    - Follow TDD workflow (see [testing-instructions.md](.agents/typescript-node/instructions/testing.md))
+    - Follow TDD workflow (see [testingmd](testing.md))
     - Write failing tests, implement minimal solution, refactor
 
 3. **Implement Minimal Solution**
@@ -359,7 +359,7 @@ async function fetchUser(
 4. **Run All Tests**
     - Run `npm run test:coverage`
     - Verify coverage meets requirements (
-      see [testing-instructions.md](.agents/typescript-node/instructions/testing.md))
+      see [testing.md](testing.md))
 
 5. **Refactor**
     - Improve code structure while tests pass
@@ -553,7 +553,7 @@ export const env = envSchema.parse(process.env);
 - PascalCase for types/interfaces: `UserResponse.ts`
 - camelCase for implementation: `fetchUser.ts`
 - Test files mirror implementation: `fetchUser.test.ts` (
-  see [testing-instructions.md](.agents/typescript-node/instructions/testing.md) for test naming)
+  see [testing.md](testing.md) for test naming)
 
 **Functions**:
 
@@ -571,7 +571,7 @@ export const env = envSchema.parse(process.env);
 
 When generating code, always:
 
-- ✅ Write tests first (see [testing-instructions.md](.agents/typescript-node/instructions/testing.md) for TDD workflow)
+- ✅ Write tests first (see [testing.md](testing.md) for TDD workflow)
 - ✅ Use strict TypeScript with explicit types
 - ✅ Handle all errors appropriately
 - ✅ Follow async/await patterns
@@ -585,7 +585,7 @@ When generating code, always:
 - ✅ Consider performance and scalability
 - ✅ Make code reviewable and maintainable
 - ✅ Use interfaces for data contracts, types for utilities
-- ✅ Follow testing best practices (see [testing-instructions.md](.agents/typescript-node/instructions/testing.md))
+- ✅ Follow testing best practices (see [testing.md](testing.md))
 - ✅ Follow consistent naming conventions
 - ✅ Organize code by feature/domain
 
