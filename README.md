@@ -1,6 +1,6 @@
 > [!IMPORTANT]
 > This repository is intended to be used as a set of Claude Code instruction files. It is not a standalone application.
-> The instruction files in `.claude` (including all subfolders) are only supported for Claude Code and should not be
+> The instruction files in `claude` (including all subfolders) are only supported for Claude Code and should not be
 > used to configure other AI agents or models.
 
 # Claude Code Instruction Repository
@@ -18,10 +18,10 @@ Copy the instruction files to your project root to configure Claude Code for you
 
 ```bash
 # Copy the Claude Code control files
-cp -r .claude /path/to/your/project/
+cp -r claude /path/to/your/project/
 
 # Optional: Copy CLAUDE.md to project root for easier access
-cp .claude/typescript-node/CLAUDE.md /path/to/your/project/CLAUDE.md
+cp claude/typescript-node/CLAUDE.md /path/to/your/project/CLAUDE.md
 ```
 
 ### Option 2: Start a new project
@@ -38,7 +38,7 @@ git init          # Initialize new git repository
 Then instruct Claude Code to read the control file:
 
 ```text
-Read .claude/typescript-node/CLAUDE.md to understand the project context and instructions.
+Read claude/typescript-node/CLAUDE.md to understand the project context and instructions.
 ```
 
 Or, if copied to the project root:
@@ -54,13 +54,13 @@ Load CLAUDE.md as the primary instruction file, and also load any referenced ins
 Follow CLAUDE.md unless conflicts arise, then ask for clarification.
 ```
 
-**Note:** These example prompts are specifically for Claude Code. The instruction files in `.claude` are not supported
+**Note:** These example prompts are specifically for Claude Code. The instruction files in `claude` are not supported
 by other AI agents or models.
 
 ## Project-Specific Overrides
 
-Projects may define custom rules that extend or override the base instructions in `.claude`. These are documented in
-`.claude/PROJECT-OVERRIDES.md`.
+Projects may define custom rules that extend or override the base instructions in `claude`. These are documented in
+`claude/PROJECT-OVERRIDES.md`.
 
 This file allows projects to:
 
@@ -69,7 +69,7 @@ This file allows projects to:
 - Document project-specific conventions and exceptions
 
 Overrides are intentionally minimal and only introduced when actual development constraints require them. See
-`.claude/PROJECT-OVERRIDES.md` for guidance on when and how to define project-specific rules.
+`claude/PROJECT-OVERRIDES.md` for guidance on when and how to define project-specific rules.
 
 ## Using AI to Improve Instructions for Your Project
 
@@ -80,12 +80,12 @@ To evolve your instruction files systematically:
 3. **Preserve intent**: Ensure changes maintain original principles while adapting to project realities
 4. **Validate with stakeholders**: Get senior developer input on proposed modifications
 5. **Justify changes**: Apply only updates backed by concrete project requirements or constraints
-6. **Document rationale**: Record what changed, why, and reference original rules in `.claude/PROJECT-OVERRIDES.md`
+6. **Document rationale**: Record what changed, why, and reference original rules in `claude/PROJECT-OVERRIDES.md`
 
 ### Example prompt:
 
 ```text
-Analyze the current project structure and development patterns in this codebase, then identify gaps between the Claude Code instructions (in README.md and .claude/ directory) and the actual implementation. For each gap found:
+Analyze the current project structure and development patterns in this codebase, then identify gaps between the Claude Code instructions (in README.md and claude/ directory) and the actual implementation. For each gap found:
 
 1. Document the specific discrepancy with file references (path:line_number format)
 2. Determine if the gap represents:
@@ -96,17 +96,17 @@ Analyze the current project structure and development patterns in this codebase,
 4. For implementation gaps: suggest whether code should align with instructions or vice versa
 5. Provide justification for each proposed change, citing specific project requirements or constraints
 
-Present findings in priority order, focusing on discrepancies that most impact development consistency. Format recommendations as specific instruction updates that could be added to .claude/PROJECT-OVERRIDES.md with clear rationale.
+Present findings in priority order, focusing on discrepancies that most impact development consistency. Format recommendations as specific instruction updates that could be added to claude/PROJECT-OVERRIDES.md with clear rationale.
 ```
 
 ## What's Inside
 
 ### Core Claude Code Control
 
-- **.claude/typescript-node/CLAUDE.md**: Main instruction file defining Claude Code's behavior, operational rules, and
+- **claude/typescript-node/CLAUDE.md**: Main instruction file defining Claude Code's behavior, operational rules, and
   communication protocols for TypeScript/Node.js projects
 
-### Development Instructions (`.claude/`)
+### Development Instructions (`claude/`)
 
 **Common Guidelines**
 
@@ -123,7 +123,7 @@ Present findings in priority order, focusing on discrepancies that most impact d
 
 ```
 .
-└── .claude/
+└── claude/
     ├── typescript-node/      # TypeScript/Node.js best practices
     │   ├── CLAUDE.md         # Primary Claude Code control file for TypeScript/Node.js
     │   └── instructions/
@@ -160,10 +160,10 @@ These instructions guide Claude Code to:
 
 Claude Code applies instructions in layers, from most general to most specific:
 
-1. **Claude Code control file** (.claude/typescript-node/CLAUDE.md): Primary instructions for TypeScript/Node.js
+1. **Claude Code control file** (claude/typescript-node/CLAUDE.md): Primary instructions for TypeScript/Node.js
    projects
-2. **Category-specific** (.claude/common): Apply when relevant (research, testing)
-3. **Stack-specific** (.claude/typescript-node/instructions): Apply for TypeScript/Node.js projects
+2. **Category-specific** (claude/common): Apply when relevant (research, testing)
+3. **Stack-specific** (claude/typescript-node/instructions): Apply for TypeScript/Node.js projects
 4. **User directives**: Override everything when specified
 
 The repository provides technology-agnostic and extensible instruction modules for Claude Code.
