@@ -1,11 +1,7 @@
-# Research Instructions for TypeScript Node.js Applications
+# Research Guidelines — TypeScript/Node.js Ecosystem
 
-> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should
-> conduct research when assisting with TypeScript Node.js projects. They are not designed or supported for use with other
-> AI agents or models.
-
-This document extends the general [research.md](../common/instructions/research.md) with TypeScript and Node.js
-ecosystem-specific guidance.
+> **Stack:** TypeScript • Node.js • npm  
+> **Scope:** Package evaluation, API research, and technology decisions
 
 ---
 
@@ -359,7 +355,7 @@ When researching database tools for TypeScript:
 
 ```typescript
 // How queries are typed
-const result = await db.query<ResultType>(...);
+const result = await db.query<ResultType>(/* query args */); // Example usage
 ```
 
 ### Migration Types
@@ -561,8 +557,6 @@ When researching build tools:
 1.
 2.
 
-```
-
 ---
 
 ## Type Definition Research
@@ -582,21 +576,25 @@ When researching DefinitelyTyped packages:
 # @types/[package] Research
 
 ## Package Info
+
 - Library version:
 - Types version:
 - DefinitelyTyped: https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/[package]
 
 ## Type Coverage
+
 - Core API: Full / Partial / Missing
 - Optional features: Full / Partial / Missing
 - Callbacks/Events: Full / Partial / Missing
 
 ## Known Issues
+
 - Open issues:
 - Type inaccuracies:
 - Missing declarations:
 
 ## Augmentation Needed
+
 ```typescript
 // Custom type augmentations
 declare module '[package]' {
@@ -614,8 +612,6 @@ declare module '[package]' {
 1.
 2.
 
-```
-
 ---
 
 ## Research Workflows (TypeScript-Specific)
@@ -623,90 +619,93 @@ declare module '[package]' {
 ### Workflow: New Dependency Addition
 
 1. **Identify the need**
-   - What problem does this solve?
-   - Are there existing solutions in the project?
+    - What problem does this solve?
+    - Are there existing solutions in the project?
 
 2. **Research candidates**
-   - Use Package Research Template
-   - Evaluate at least 2-3 alternatives
+    - Use Package Research Template
+    - Evaluate at least 2-3 alternatives
 
 3. **Verify TypeScript support**
-   - Check type definitions
-   - Test with strict mode
-   - Review type accuracy
+    - Check type definitions
+    - Test with strict mode
+    - Review type accuracy
 
 4. **Security check**
-   - Run `npm audit`
-   - Check Snyk database
-   - Review dependency tree
+    - Run `npm audit`
+    - Check Snyk database
+    - Review dependency tree
 
 5. **Integration assessment**
-   - Compatibility with existing packages
-   - Alignment with [coding.md](coding.md) patterns
-   - Testing approach per [testing.md](testing.md)
+    - Compatibility with existing packages
+    - Alignment with [coding.md](coding.md) patterns
+    - Testing approach per [testing.md](testing.md)
 
 6. **Document decision**
-   - Rationale for selection
-   - Alternatives considered
-   - Known limitations
+    - Rationale for selection
+    - Alternatives considered
+    - Known limitations
 
 ### Workflow: TypeScript Upgrade Research
 
 1. **Review changelog**
-   - Breaking changes
-   - New features
-   - Deprecations
+    - Breaking changes
+    - New features
+    - Deprecations
 
 2. **Assess impact**
-   - Incompatible patterns in codebase
-   - Required tsconfig changes
-   - Affected dependencies
+    - Incompatible patterns in codebase
+    - Required tsconfig changes
+    - Affected dependencies
 
 3. **Test compatibility**
-   - Run type checking
-   - Check @types/* compatibility
-   - Verify build tools
+    - Run type checking
+    - Check @types/* compatibility
+    - Verify build tools
 
 4. **Plan migration**
-   - Incremental approach
-   - Testing strategy
-   - Rollback plan
+    - Incremental approach
+    - Testing strategy
+    - Rollback plan
 
 ### Workflow: API Integration Research
 
 1. **Follow general API Research** (from common research.md)
 
 2. **TypeScript-specific evaluation**
-   - Official SDK quality
-   - Type definitions accuracy
-   - Error type completeness
+    - Official SDK quality
+    - Type definitions accuracy
+    - Error type completeness
 
 3. **Client implementation approach**
-   - Use SDK vs. custom client
-   - Type generation options
-   - Validation layer needs
+    - Use SDK vs. custom client
+    - Type generation options
+    - Validation layer needs
 
 4. **Integration with project patterns**
-   - Error handling per [coding.md](coding.md#4-error-handling-strategy)
-   - Testing approach per [testing.md](testing.md)
+    - Error handling per [coding.md](coding.md#4-error-handling-strategy)
+    - Testing approach per [testing.md](testing.md)
 
 ---
 
 ## Source Priority (TypeScript-Specific)
 
 ### Tier 1: Official Sources
+
 1. TypeScript documentation (typescriptlang.org)
 2. Node.js documentation (nodejs.org)
 3. Package official documentation
 4. GitHub release notes
 
 ### Tier 2: Verified Technical Sources
+
 1. TypeScript GitHub issues (confirmed by maintainers)
 2. Node.js GitHub issues (confirmed)
 3. DefinitelyTyped discussions
 4. Package maintainer responses
 
 ### Tier 3: Community Sources
+
 1. Stack Overflow (accepted answers, verify)
 2. Dev.to / Medium (verify against Tier 1)
 3. Reddit r/typescript, r/node (verify)
@@ -717,13 +716,13 @@ Always verify Tier 2 and 3 against official documentation.
 
 ## Integration with Other Instructions
 
-| Research Area | Implementation Reference |
-|---------------|-------------------------|
-| Package selection | [coding.md - Dependency Injection](coding.md#5-code-organization) |
+| Research Area       | Implementation Reference                                               |
+|---------------------|------------------------------------------------------------------------|
+| Package selection   | [coding.md - Dependency Injection](coding.md#5-code-organization)      |
 | API client patterns | [coding.md - Asynchronous Patterns](coding.md#3-asynchronous-patterns) |
-| Database tools | [coding.md - Database Patterns](coding.md#9-database-patterns) |
-| Testing libraries | [testing.md](testing.md) |
-| Build configuration | [docker.md - Dockerfile Template](docker.md#dockerfile-template) |
+| Database tools      | [coding.md - Database Patterns](coding.md#9-database-patterns)         |
+| Testing libraries   | [testing.md](testing.md)                                               |
+| Build configuration | [docker.md - Dockerfile Template](docker.md#dockerfile-template)       |
 
 ---
 
@@ -732,24 +731,28 @@ Always verify Tier 2 and 3 against official documentation.
 Before completing research:
 
 ### Type Safety
+
 - [ ] TypeScript support verified
 - [ ] Strict mode compatibility confirmed
 - [ ] Type definitions reviewed for accuracy
 - [ ] Generic patterns evaluated
 
 ### Ecosystem Fit
+
 - [ ] Node.js version compatibility confirmed
 - [ ] ESM/CJS handling understood
 - [ ] Integration with existing packages verified
 - [ ] Build tool compatibility confirmed
 
 ### Documentation
+
 - [ ] TypeScript examples included
 - [ ] Type definitions documented
 - [ ] Known type issues listed
 - [ ] Workarounds provided where needed
 
 ### Project Alignment
+
 - [ ] Follows [coding.md](coding.md) patterns
 - [ ] Testing approach aligns with [testing.md](testing.md)
 - [ ] Docker considerations per [docker.md](docker.md) addressed
@@ -767,4 +770,5 @@ This document extends the general research instructions with TypeScript/Node.js-
 - **Build tools** and compilation research
 - **Type definitions** accuracy verification
 
-Always reference the general [research.md](../common/instructions/research.md) for foundational research methodology, then apply TypeScript-specific patterns from this document.
+Always reference the general [research.md](../common/instructions/research.md) for foundational research methodology,
+then apply TypeScript-specific patterns from this document.

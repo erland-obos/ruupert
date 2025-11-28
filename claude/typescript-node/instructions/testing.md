@@ -1,12 +1,15 @@
-# Testing Instructions for TypeScript Node.js Applications
+# Testing Standards — TypeScript/Node.js
 
-> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should write and execute tests for TypeScript Node.js applications when assisting with any project. They are not designed or supported for use with other AI agents or models.
+> **Stack:** Vitest/Jest • TypeScript • Node.js  
+> **Scope:** Unit, integration, and E2E testing patterns
 
 ## Core Testing Philosophy
 
 ### Test-Driven Development (TDD)
 
-> This is the test-specific TDD cycle. For the broader code change workflow, see [coding.md "Iterative Development Workflow"](coding.md#iterative-development-workflow). For high-level task execution, see [CLAUDE.md Section 6](../CLAUDE.md#6-task-execution-flow).
+> This is the test-specific TDD cycle. For the broader code change workflow,
+> see [coding.md "Iterative Development Workflow"](coding.md#iterative-development-workflow). For high-level task
+> execution, see [CLAUDE.md Section 6](../CLAUDE.md#6-task-execution-flow).
 
 **Every feature or bug fix MUST follow this workflow:**
 
@@ -78,9 +81,11 @@ export default defineConfig({
 
 ## Testing Within Code Organization
 
-> For module structure and code organization, see [coding.md Section 5 "Code Organization"](coding.md#5-code-organization).
+> For module structure and code organization,
+> see [coding.md Section 5 "Code Organization"](coding.md#5-code-organization).
 
-Tests should be **collocated** with implementation files (e.g., `{feature}.test.ts` alongside `{feature}.ts`). This ensures:
+Tests should be **collocated** with implementation files (e.g., `{feature}.test.ts` alongside `{feature}.ts`). This
+ensures:
 
 - Easy to find related tests
 - Changes to implementation prompt test updates
@@ -516,7 +521,7 @@ vi.useFakeTimers();                    // Use fake timers
 vi.useRealTimers();                    // Restore real timers
 vi.setSystemTime(new Date());          // Set current time
 vi.advanceTimersByTimeAsync(1000);     // Advance async timers by milliseconds
-vi.waitFor(() => expect(...));         // Wait for condition
+// Template: vi.waitFor(() => expect(/* condition */));         // Wait for condition
 ```
 
 ### Running Tests

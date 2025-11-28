@@ -1,6 +1,7 @@
-# Docker Setup Guidelines
+# Docker Configuration — TypeScript/Node.js Applications
 
-> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should set up Docker environments when assisting with any project. They are not designed or supported for use with other AI agents or models.
+> **Stack:** Node.js (Alpine/Debian) • Multi-stage builds • TypeScript compilation  
+> **Scope:** Containerization patterns for development and production
 
 ## Overview
 
@@ -386,7 +387,8 @@ temp
 
 ## Docker Compose Configuration
 
-> **Note on Placeholders**: YAML examples use `<placeholder>` syntax (e.g., `<app-name>`, `<project-name>`). Replace these with your actual values before use. The angle brackets indicate a value you must provide.
+> **Note on Placeholders**: YAML examples use `<placeholder>` syntax (e.g., `<app-name>`, `<project-name>`). Replace
+> these with your actual values before use. The angle brackets indicate a value you must provide.
 
 ### Development: `docker-compose.yml`
 
@@ -1024,7 +1026,8 @@ docker volume ls
 
 ## Security Best Practices
 
-> For application-level security practices (input validation, authentication, secrets management), see [coding.md Security Best Practices](coding.md#security-best-practices).
+> For application-level security practices (input validation, authentication, secrets management),
+> see [coding.md Security Best Practices](coding.md#security-best-practices).
 
 ### 1. Non-Root User (Production Only)
 
@@ -1292,3 +1295,33 @@ When dockerizing an application:
 9. **Security first** - Non-root in production, secrets in env files, minimal images
 
 Remember: **Two modes** - Development (fast iteration) and Production (validation/deployment). Both must work correctly.
+
+# The following Dockerfile and YAML examples use {app-name}, <project-name>, etc. as placeholders. Replace these with actual values in your project. All lines with placeholders are commented out to avoid syntax errors. For example:
+
+# COPY apps/{app-name}/package.json ./apps/{app-name}/
+
+# COPY apps/{app-name}/src ./apps/{app-name}/src
+
+# COPY apps/{app-name}/tsconfig.json ./apps/{app-name}/
+
+# COPY apps/{app-name}/esbuild.config.js ./apps/{app-name}/
+
+# COPY --chown=appuser:appuser apps/{app-name}/package.json ./apps/{app-name}/
+
+# COPY --chown=appuser:appuser --from=build /app/apps/{app-name}/dist ./apps/{app-name}/dist
+
+# image: <project-name>-app:latest
+
+# image: <project-name>-{app-name}:latest
+
+# db:
+
+# <app-name>-network:
+
+# FROM node:22-slim # Not node:25 (much larger)
+
+# FROM node:22-slim # ❌ Can change
+
+# FROM node:25.0.0-slim # ✅ Reproducible
+
+# All placeholder code above is commented out to avoid syntax errors. If you copy these lines, remove the '#' and replace placeholders with actual values.

@@ -1,6 +1,7 @@
-# Coding Instructions for TypeScript Node.js Applications
+# TypeScript/Node.js Coding Standards
 
-> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should write and review TypeScript Node.js code when assisting with any project. They are not designed or supported for use with other AI agents or models.
+> **Stack:** TypeScript 5.x • Node.js 18+ • ESM  
+> **Scope:** Code style, patterns, and implementation guidelines for Claude Code
 
 ## Core Principles
 
@@ -186,7 +187,7 @@ All testing guidance has been consolidated in a dedicated document:
 - Use Test-Driven Development (TDD) for all features
 - Maintain minimum 80% code coverage (100% for critical paths)
 - Mock all external dependencies
-- Tests are collocated with implementation files
+- Tests are collated with implementation files
 
 For detailed guidance on test structure, mocking patterns, coverage requirements, edge case testing, and development
 workflow integration, refer to the testing instructions document.
@@ -361,7 +362,9 @@ async function fetchUser(
 
 ## Iterative Development Workflow
 
-> This workflow details the code change process. For high-level task execution, see [CLAUDE.md Section 6](../CLAUDE.md#6-task-execution-flow). For test-specific TDD cycles, see [testing.md "TDD Workflow"](testing.md#test-driven-development-tdd).
+> This workflow details the code change process. For high-level task execution,
+> see [CLAUDE.md Section 6](../CLAUDE.md#6-task-execution-flow). For test-specific TDD cycles,
+> see [testing.md "TDD Workflow"](testing.md#test-driven-development-tdd).
 
 ### For Every Code Change:
 

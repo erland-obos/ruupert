@@ -1,14 +1,10 @@
-# CLAUDE.md
+# Claude Code Instructions — TypeScript/Node.js
 
-Instruction file for Claude Code
+> **Stack:** TypeScript • Node.js • npm ecosystem  
+> **Agent:** Claude Code only
 
-## Purpose
-
-Provide a stable, project-scoped control file that Claude Code can load and apply as its operating instructions.
-This file defines how Claude Code should behave when reading the project, modifying code, generating files, performing
-refactors, and interacting with the repository.
-
-> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should behave when assisting with this project. They are not designed or supported for use with other AI agents or models.
+> **Scope:** These instructions are intended only for use with **Claude Code**. They define how Claude Code should
+> behave when assisting with this project. They are not designed or supported for use with other AI agents or models.
 
 ---
 
@@ -178,7 +174,8 @@ For every task:
 If a task cannot be completed safely, halt and ask for clarification.
 
 > **Related Workflows**: This high-level task execution flow applies to all tasks. For specific workflows:
-> - Code changes: See [coding.md "Iterative Development Workflow"](instructions/coding.md#iterative-development-workflow)
+> - Code changes:
+    See [coding.md "Iterative Development Workflow"](instructions/coding.md#iterative-development-workflow)
 > - Test-driven development: See [testing.md "TDD Workflow"](instructions/testing.md#test-driven-development-tdd)
 
 ---
@@ -230,7 +227,7 @@ You must not:
 
 # 10. Extensibility and Instruction File Management
 
-## 10.1 Additional Instruction Files
+## 10.1 TypeScript/Node.js Instruction Files
 
 The following category-specific instruction files are available in `claude/` for use by Claude Code:
 
@@ -262,7 +259,8 @@ The following category-specific instruction files are available in `claude/` for
     - Contains Dockerfile templates, Docker Compose configurations
     - Defines development vs production patterns, networking, and troubleshooting
 
-All instruction files are intended for Claude Code only and provide general best practices applicable to any new project when Claude Code is used as the assistant.
+All instruction files are intended for Claude Code only and provide general best practices applicable to any new project
+when Claude Code is used as the assistant.
 
 ## 10.2 How Claude Code Should Handle Multiple Instruction Layers
 
@@ -270,7 +268,8 @@ All instruction files are intended for Claude Code only and provide general best
    Claude Code should always apply these unless the user explicitly overrides them.
 
 2. **Category-Specific Instruction Files**
-   If the user's request falls within a category (architecture, research, testing), Claude Code should apply that category's instructions.
+   If the user's request falls within a category (architecture, research, testing), Claude Code should apply that
+   category's instructions.
 
 3. **Project-Specific Instruction Files**
    Claude Code should only apply these if the user states the project context or references a project.
@@ -291,5 +290,3 @@ If the request appears unsafe or contradictory:
 
 - notify the user
 - propose safe alternatives
-
----
