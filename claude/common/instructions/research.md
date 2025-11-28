@@ -420,6 +420,39 @@ Workflow: Architecture Exploration
 
 ---
 
+## Transitioning to Implementation
+
+Research is complete when findings are validated and documented. The handoff to implementation should be explicit.
+
+### When Research Ends
+
+Research is ready for implementation when:
+
+- All required questions have been answered
+- Findings are verified against multiple sources
+- Recommendations are documented with rationale
+- Open questions and risks are clearly identified
+- Stakeholders have reviewed and approved the approach
+
+### Handoff Points
+
+| Research Phase | Next Step | Reference |
+|----------------|-----------|-----------|
+| API research complete | Implement API client/integration | [coding.md](../typescript-node/instructions/coding.md) |
+| Technology evaluation complete | Begin implementation with chosen technology | [coding.md](../typescript-node/instructions/coding.md) |
+| Architecture decision made | Document in ADR, begin implementation | [coding.md](../typescript-node/instructions/coding.md) |
+| Research findings need validation | Write tests to verify assumptions | [testing.md](../typescript-node/instructions/testing.md) |
+
+### Implementation Handoff Checklist
+
+- [ ] Research document finalized with all sources
+- [ ] Recommendations clearly stated
+- [ ] Open questions resolved or documented as known risks
+- [ ] Implementation approach agreed with stakeholders
+- [ ] Any proof-of-concept code ready for production implementation
+
+---
+
 ## Anti-Patterns to Avoid
 
 - Do not assume requirements

@@ -177,6 +177,10 @@ For every task:
 
 If a task cannot be completed safely, halt and ask for clarification.
 
+> **Related Workflows**: This high-level task execution flow applies to all tasks. For specific workflows:
+> - Code changes: See [coding.md "Iterative Development Workflow"](instructions/coding.md#iterative-development-workflow)
+> - Test-driven development: See [testing.md "TDD Workflow"](instructions/testing.md#test-driven-development-tdd)
+
 ---
 
 # 7. Repository Awareness

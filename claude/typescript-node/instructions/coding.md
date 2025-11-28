@@ -85,6 +85,8 @@ async function fetchData(): Promise<Data> {
 
 #### Custom Error Classes
 
+**Recommended Pattern**:
+
 ```typescript
 class AppError extends Error {
   constructor(
@@ -98,7 +100,27 @@ class AppError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
+
+// Example subclasses
+class ApiError extends AppError {
+  constructor(message: string, statusCode: number, context?: Record<string, unknown>) {
+    super(message, 'API_ERROR', statusCode, context);
+  }
+}
+
+class ValidationError extends AppError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, 'VALIDATION_ERROR', 400, context);
+  }
+}
 ```
+
+**Key Points**:
+
+- Always set `this.name` using `this.constructor.name`
+- Include `Error.captureStackTrace()` for better debugging
+- Add context properties relevant to the error type
+- Use consistent error codes across the application
 
 #### Error Propagation
 
@@ -162,7 +184,7 @@ All testing guidance has been consolidated in a dedicated document:
 **Quick Reference**:
 
 - Use Test-Driven Development (TDD) for all features
-- Maintain 80-100% code coverage
+- Maintain minimum 80% code coverage (100% for critical paths)
 - Mock all external dependencies
 - Tests are collocated with implementation files
 
@@ -339,6 +361,8 @@ async function fetchUser(
 
 ## Iterative Development Workflow
 
+> This workflow details the code change process. For high-level task execution, see [CLAUDE.md Section 6](../CLAUDE.md#6-task-execution-flow). For test-specific TDD cycles, see [testing.md "TDD Workflow"](testing.md#test-driven-development-tdd).
+
 ### For Every Code Change:
 
 1. **Understand Requirements**
@@ -482,44 +506,9 @@ type Status = 'pending' | 'in_progress' | 'completed';
 type TaskFunction = () => Promise<void>;
 ```
 
-### Error Class Pattern
+### Error Handling
 
-**Recommended Pattern**:
-
-```typescript
-export class CustomError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number = 500,
-    public readonly context?: Record<string, unknown>
-  ) {
-    super(message);
-    this.name = this.constructor.name;
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
-
-// Example usage
-export class ApiError extends CustomError {
-  constructor(message: string, statusCode: number, context?: Record<string, unknown>) {
-    super(message, 'API_ERROR', statusCode, context);
-  }
-}
-
-export class ValidationError extends CustomError {
-  constructor(message: string, context?: Record<string, unknown>) {
-    super(message, 'VALIDATION_ERROR', 400, context);
-  }
-}
-```
-
-**Key Points**:
-
-- Always set `this.name` using `this.constructor.name`
-- Include `Error.captureStackTrace()` for better debugging
-- Add context properties relevant to the error type
-- Use consistent error codes across the application
+> For custom error class patterns and examples, see [Section 4 "Error Handling Strategy"](#4-error-handling-strategy).
 
 ### Environment Configuration
 

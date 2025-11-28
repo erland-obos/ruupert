@@ -130,16 +130,20 @@ docker compose -f docker-compose.prod.yml up {app-name}
 
 Each app should have a multi-stage Dockerfile supporting both development and production.
 
+> **Related Documentation**:
+> - For TypeScript coding conventions used in containerized apps, see [coding.md](coding.md)
+> - For running tests in containers, see [testing.md](testing.md)
+
 ### Single Application: `Dockerfile`
 
 ```dockerfile
 # =============================================================================
 # Stage: base - Shared base configuration
 # =============================================================================
-FROM node:25-slim AS base
+FROM node:22-slim AS base
 
 # Install package manager (pnpm example, adjust for npm/yarn)
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 # Set working directory
 WORKDIR /app
@@ -186,10 +190,10 @@ RUN pnpm build
 # =============================================================================
 # Stage: production - Minimal production runtime
 # =============================================================================
-FROM node:25-slim AS production
+FROM node:22-slim AS production
 
 # Install package manager
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 # Create non-root user for security
 RUN groupadd -r appuser && useradd -r -g appuser appuser
@@ -228,10 +232,10 @@ CMD ["node", "dist/index.js"]
 # =============================================================================
 # Stage: base - Shared base configuration
 # =============================================================================
-FROM node:25-slim AS base
+FROM node:22-slim AS base
 
 # Install pnpm (or your workspace package manager)
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 # Set working directory
 WORKDIR /app
@@ -281,10 +285,10 @@ RUN pnpm --filter={app-name} build
 # =============================================================================
 # Stage: production - Minimal production runtime
 # =============================================================================
-FROM node:25-slim AS production
+FROM node:22-slim AS production
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 # Create non-root user for security
 RUN groupadd -r appuser && useradd -r -g appuser appuser
@@ -382,6 +386,8 @@ temp
 
 ## Docker Compose Configuration
 
+> **Note on Placeholders**: YAML examples use `<placeholder>` syntax (e.g., `<app-name>`, `<project-name>`). Replace these with your actual values before use. The angle brackets indicate a value you must provide.
+
 ### Development: `docker-compose.yml`
 
 #### Single Application
@@ -395,7 +401,7 @@ services:
       context: ../..
       dockerfile: Dockerfile
       target: development
-    container_name: { project-name }-app-dev
+    container_name: <project-name>-app-dev
     restart: unless-stopped
     volumes:
       # Mount source code for hot-reload
@@ -421,12 +427,12 @@ services:
   # Example: PostgreSQL database (adjust for your needs)
   db:
     image: postgres:16-alpine
-    container_name: { project-name }-db
+    container_name: <project-name>-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: { database-name }
-      POSTGRES_USER: { database-user }
-      POSTGRES_PASSWORD: { database-password }
+      POSTGRES_DB: <database-name>
+      POSTGRES_USER: <database-user>
+      POSTGRES_PASSWORD: <database-password>
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -457,12 +463,12 @@ services:
   # =============================================================================
   # Application 1 (development with hot-reload)
   # =============================================================================
-  { app-name }-dev:
+  <app-name>-dev:
                 build:
                   context: .                        # Build from monorepo root
                   dockerfile: apps/{app-name}/Dockerfile
                   target: development
-                container_name: { project-name }-{app-name}-dev
+                container_name: <project-name>-{app-name}-dev
                 restart: unless-stopped
                 volumes:
                   # Mount source code for hot-reload
@@ -479,7 +485,7 @@ services:
                   db:
                     condition: service_healthy
                 networks:
-                  - { app-name }-network
+                  - <app-name>-network
                   - shared-services
                 # Uncomment if app exposes HTTP port
                 # ports:
@@ -490,12 +496,12 @@ services:
   # =============================================================================
               db:
                 image: postgres:16-alpine
-                container_name: { project-name }-db
+                container_name: <project-name>-db
                 restart: unless-stopped
                 environment:
-                  POSTGRES_DB: { database-name }
-                  POSTGRES_USER: { database-user }
-                  POSTGRES_PASSWORD: { database-password }
+                  POSTGRES_DB: <database-name>
+                  POSTGRES_USER: <database-user>
+                  POSTGRES_PASSWORD: <database-password>
                 volumes:
                   - postgres-data:/var/lib/postgresql/data
                 ports:
@@ -516,7 +522,7 @@ networks:
               shared-services:
                 driver: bridge
 
-  { app-name }-network:
+  <app-name>-network:
                 driver: bridge
 
 # =============================================================================
@@ -539,8 +545,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: { project-name }-app:latest
-    container_name: { project-name }-app
+    image: <project-name>-app:latest
+    container_name: <project-name>-app
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -558,11 +564,11 @@ services:
 
   db:
     image: postgres:16-alpine
-    container_name: { project-name }-db
+    container_name: <project-name>-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: { database-name }
-      POSTGRES_USER: { database-user }
+      POSTGRES_DB: <database-name>
+      POSTGRES_USER: <database-user>
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -588,13 +594,13 @@ volumes:
 version: '3.9'
 
 services:
-  { app-name }:
+  <app-name>:
     build:
       context: .
       dockerfile: apps/{app-name}/Dockerfile
       target: production
-    image: { project-name }-{app-name}:latest
-    container_name: { project-name }-{app-name}
+    image: <project-name>-{app-name}:latest
+    container_name: <project-name>-{app-name}
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -605,7 +611,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - { app-name }-network
+      - <app-name>-network
       - shared-services
     # Uncomment for HTTP apps
     # ports:
@@ -613,11 +619,11 @@ services:
 
     db:
       image: postgres:16-alpine
-      container_name: { project-name }-db
+      container_name: <project-name>-db
       restart: unless-stopped
       environment:
-        POSTGRES_DB: { database-name }
-        POSTGRES_USER: { database-user }
+        POSTGRES_DB: <database-name>
+        POSTGRES_USER: <database-user>
         POSTGRES_PASSWORD: ${DB_PASSWORD}
       volumes:
         - postgres-data:/var/lib/postgresql/data
@@ -632,7 +638,7 @@ services:
 networks:
               shared-services:
                 driver: bridge
-  { app-name }-network:
+  <app-name>-network:
                 driver: bridge
 
 volumes:
@@ -1018,6 +1024,8 @@ docker volume ls
 
 ## Security Best Practices
 
+> For application-level security practices (input validation, authentication, secrets management), see [coding.md Security Best Practices](coding.md#security-best-practices).
+
 ### 1. Non-Root User (Production Only)
 
 Development runs as root for convenience, production uses non-root:
@@ -1068,7 +1076,7 @@ volumes:
 Use slim variants:
 
 ```dockerfile
-FROM node:25-slim  # Not node:25 (much larger)
+FROM node:22-slim  # Not node:25 (much larger)
 ```
 
 ### 6. Explicit Dependencies
@@ -1076,7 +1084,7 @@ FROM node:25-slim  # Not node:25 (much larger)
 Pin exact versions:
 
 ```dockerfile
-FROM node:25-slim              # ❌ Can change
+FROM node:22-slim              # ❌ Can change
 FROM node:25.0.0-slim          # ✅ Reproducible
 ```
 
@@ -1140,8 +1148,8 @@ While examples in this guide use PostgreSQL, Docker supports any database:
 db:
   image: postgres:16-alpine
   environment:
-    POSTGRES_DB: { database-name }
-    POSTGRES_USER: { database-user }
+    POSTGRES_DB: <database-name>
+    POSTGRES_USER: <database-user>
     POSTGRES_PASSWORD: ${DB_PASSWORD}
   healthcheck:
     test: [ "CMD-SHELL", "pg_isready -U {database-user}" ]
@@ -1153,8 +1161,8 @@ db:
 db:
   image: mysql:8.0
   environment:
-    MYSQL_DATABASE: { database-name }
-    MYSQL_USER: { database-user }
+    MYSQL_DATABASE: <database-name>
+    MYSQL_USER: <database-user>
     MYSQL_PASSWORD: ${DB_PASSWORD}
     MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
   healthcheck:
@@ -1167,7 +1175,7 @@ db:
 db:
   image: mongo:7
   environment:
-    MONGO_INITDB_ROOT_USERNAME: { database-user }
+    MONGO_INITDB_ROOT_USERNAME: <database-user>
     MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
   healthcheck:
     test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
@@ -1233,11 +1241,11 @@ Always use multi-stage builds to minimize final image size:
 
 ```dockerfile
 # Build stage: large (includes build tools)
-FROM node:25-slim AS build
+FROM node:22-slim AS build
 # ... build steps ...
 
 # Production stage: small (only runtime)
-FROM node:25-slim AS production
+FROM node:22-slim AS production
 COPY --from=build /app/dist ./dist
 ```
 

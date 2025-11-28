@@ -6,6 +6,8 @@
 
 ### Test-Driven Development (TDD)
 
+> This is the test-specific TDD cycle. For the broader code change workflow, see [coding.md "Iterative Development Workflow"](coding.md#iterative-development-workflow). For high-level task execution, see [CLAUDE.md Section 6](../CLAUDE.md#6-task-execution-flow).
+
 **Every feature or bug fix MUST follow this workflow:**
 
 1. **Write the test first** - Define expected behavior before implementation
@@ -76,32 +78,13 @@ export default defineConfig({
 
 ## Testing Within Code Organization
 
-### Module Structure Integration
+> For module structure and code organization, see [coding.md Section 5 "Code Organization"](coding.md#5-code-organization).
 
-Tests should be collocated with implementation files within feature directories:
-
-```
-src/
-├── services/
-│   └── {feature}/
-│       ├── types/               # TypeScript interfaces
-│       ├── {feature}.ts         # Implementation
-│       └── {feature}.test.ts    # Tests (collocated)
-```
-
-**Organization Principles**:
-
-- Keep types, implementation, and tests colocated
-- Tests live alongside implementation files
-- Each feature directory is self-contained with its tests
-- Separate concerns while maintaining proximity
-
-**Benefits**:
+Tests should be **collocated** with implementation files (e.g., `{feature}.test.ts` alongside `{feature}.ts`). This ensures:
 
 - Easy to find related tests
 - Changes to implementation prompt test updates
 - Clear module boundaries with their test coverage
-- Simplifies refactoring and code navigation
 
 ## Testing in Development Workflow
 
@@ -213,9 +196,9 @@ describe('ModuleName', () => {
 
 ### Target Coverage
 
-- **Minimum**: 80% for all new code
-- **Goal**: 100% for all files
-- **Critical Paths**: 100% coverage REQUIRED (auth, data persistence, external APIs, error handling)
+- **Minimum (enforced)**: 80% for all code - this is the threshold that must pass CI
+- **Goal**: 100% for new code - strive for complete coverage on new implementations
+- **Critical Paths**: 100% coverage REQUIRED (non-negotiable) - auth, data persistence, external APIs, error handling
 
 ### Running Coverage Reports
 
@@ -559,7 +542,7 @@ npm test path/to/test.test.ts
 - [ ] All mocks properly configured
 - [ ] Environment variables saved/restored in tests
 - [ ] Timers mocked if time-dependent logic exists
-- [ ] 100% coverage achieved (check with `test:coverage`)
+- [ ] Coverage meets minimum 80% (100% for critical paths)
 - [ ] Tests run successfully
 - [ ] No flaky or timing-dependent tests
 - [ ] Test names clearly describe expected behavior
@@ -573,7 +556,7 @@ npm test path/to/test.test.ts
 When reviewing pull requests, verify:
 
 - [ ] **Tests included**: All new functionality has corresponding tests
-- [ ] **Coverage maintained**: Coverage report shows ≥80% (ideally 100%)
+- [ ] **Coverage maintained**: Coverage meets minimum 80% (100% for critical paths)
 - [ ] **Edge cases tested**: Null, undefined, empty values, boundaries
 - [ ] **Error scenarios tested**: Network failures, invalid input, exceptions
 - [ ] **Mocks properly configured**: All external dependencies mocked
