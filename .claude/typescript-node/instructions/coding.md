@@ -315,8 +315,7 @@ type CreateUserInput = z.infer<typeof createUserSchema>;
 
 #### Linting and Formatting
 
-- Use ESLint with TypeScript rules
-- Use Prettier for consistent formatting
+- Use BiomeJS for linting and formatting
 - Run linters in CI/CD pipeline
 - Configure pre-commit hooks
 
