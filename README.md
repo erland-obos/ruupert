@@ -124,14 +124,19 @@ Present findings in priority order, focusing on discrepancies that most impact d
 ```
 .
 └── claude/
-    ├── typescript-node/      # TypeScript/Node.js best practices
-    │   ├── CLAUDE.md         # Primary Claude Code control file for TypeScript/Node.js
+    ├── common/
+    │   ├── CLAUDE.md         # Primary Claude Code control file for general development guidelines
     │   └── instructions/
-    │       ├── coding.md
-    │       ├── testing.md    # TDD and testing guidelines for TypeScript/Node.js
-    │       └── docker.md     # Container setup guide
-    └── common/instructions/
-        └── research.md       # Research methodology
+    │       ├── coding.md     # coding guidelines for general development guidelines
+    │       ├── testing.md    # TDD and testing guidelines for general development guidelines
+    │       ├── docker.md     # Container setup guide general development guidelines
+    │       └── research.md       # General research methodology
+    └── typescript-node/      # TypeScript/Node.js best practices
+        ├── CLAUDE.md         # Primary Claude Code control file for TypeScript/Node.js
+        └── instructions/
+            ├── coding.md     # coding guidelines for TypeScript/Node.
+            ├── testing.md    # TDD and testing guidelines for TypeScript/Node.js
+            └── docker.md     # Container setup guide for TypeScript/Node.
 ```
 
 ## Key Principles

@@ -240,7 +240,7 @@ The following category-specific instruction files are available in `.claude/` fo
 
 ### When Conducting Research
 
-- [.claude/common/instructions/research.md](../common/instructions/research.md)
+- [.claude/typescript-node/instructions/research.md](instructions/research.md)
     - Apply when researching technologies, APIs, databases, or architectures
     - Contains research methodology, source evaluation, documentation standards
     - Defines templates for API research, technology evaluation, and decision rationale
