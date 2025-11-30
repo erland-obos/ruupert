@@ -229,32 +229,32 @@ You must not:
 
 ## 10.1 TypeScript/Node.js Instruction Files
 
-The following category-specific instruction files are available in `claude/` for use by Claude Code:
+The following category-specific instruction files are available in `.claude/` for use by Claude Code:
 
 ### When Writing Code
 
-- [claude/typescript-node/instructions/coding.md](instructions/coding.md)
+- [.claude/typescript-node/instructions/coding.md](instructions/coding.md)
     - Apply when writing, modifying, or reviewing TypeScript/Node.js code
     - Contains type safety guidelines, error handling patterns, code organization
     - Defines naming conventions, testing approach, and security best practices
 
 ### When Conducting Research
 
-- [claude/common/instructions/research.md](../common/instructions/research.md)
+- [.claude/common/instructions/research.md](../common/instructions/research.md)
     - Apply when researching technologies, APIs, databases, or architectures
     - Contains research methodology, source evaluation, documentation standards
     - Defines templates for API research, technology evaluation, and decision rationale
 
 ### When Writing Tests
 
-- [claude/typescript-node/instructions/testing.md](instructions/testing.md)
+- [.claude/typescript-node/instructions/testing.md](instructions/testing.md)
     - Apply when writing tests or implementing TDD workflow
     - Contains comprehensive testing guidelines, coverage requirements
     - Defines mocking patterns, test structure, and CI/CD integration
 
 ### When Setting Up Docker
 
-- [claude/typescript-node/instructions/docker.md](instructions/docker.md)
+- [.claude/typescript-node/instructions/docker.md](instructions/docker.md)
     - Apply when containerizing applications or setting up Docker environments
     - Contains Dockerfile templates, Docker Compose configurations
     - Defines development vs production patterns, networking, and troubleshooting
